@@ -1,0 +1,7 @@
+venv
+.env
+__pycache__
+.git
+backend/media/pitchdecks
+backend/media/export
+
