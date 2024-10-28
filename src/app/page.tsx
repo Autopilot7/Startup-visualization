@@ -1,3 +1,4 @@
+'use client'
 import FilterBar from "@/components/dashboard/FilterBar"
 import { Suspense } from "react"
 import { Input } from "@/components/ui/input"
@@ -11,8 +12,19 @@ import {
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
+import { useState } from "react"
 
 export default function Dashboard() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredStartups = dummyStartupTableProps.startups.filter((startup) =>
+    startup.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
   return (
     <div className="flex flex-col">
       <div className="flex flex-row min-h-screen">
@@ -36,6 +48,8 @@ export default function Dashboard() {
               type="search"
               placeholder="Search startups..."
               className="font-normal pl-10 w-full h-10"
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
           </div>
           <DropdownMenu>
@@ -52,7 +66,7 @@ export default function Dashboard() {
           </DropdownMenu>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <StartupTable {...dummyStartupTableProps} />
+          <StartupTable startups={filteredStartups} />
         </Suspense>
         </main>
       </div>

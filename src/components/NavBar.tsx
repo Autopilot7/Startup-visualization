@@ -5,6 +5,7 @@ import { House, ChartNoAxesCombined, MessageCircle } from 'lucide-react';
 import { Montserrat } from "next/font/google";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -36,6 +37,12 @@ const menuItems = [
 
 export default function NavBar() {
     const pathname = usePathname();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     return (
       <div className="flex flex-col w-auto my-1 shadow-sm">
         <div className='flex items-center justify-items-start max-lg:justify-around gap-20 h-full'>
@@ -59,7 +66,7 @@ export default function NavBar() {
                                 className={clsx(
                                   "flex grow items-center gap-2 py-2  hover:text-blue-600",
                                   {
-                                    "text-blue-600": pathname === item.href,
+                                    "text-blue-600": isClient && pathname === item.href,
                                   }
                                 )}
                             >

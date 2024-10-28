@@ -17,6 +17,9 @@ export default function Badge({type, value}: {type: string, value: string}) {
         if (type === "launch_date") {
             return "bg-orange-500";
         }
+        if (type === "category") {
+            return "bg-sky-500";
+        }
         return text_to_color[value.toLowerCase() as ColorKey] || "default-color-class"; // Fallback color class
     };
 
