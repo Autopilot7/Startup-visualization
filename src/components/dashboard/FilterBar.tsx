@@ -114,7 +114,7 @@ export default function FilterBar() {
 
   const handleApplyFilters = () => {
     console.log('Applied filters:', selectedFilters)
-    // Here you would typically update your main component's state or call an API
+
     if (isSmallScreen) {
       setIsDialogOpen(false)
     }
