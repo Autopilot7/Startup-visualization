@@ -1,10 +1,11 @@
 "use client"
-
 import * as React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { GripVertical } from "lucide-react"
+import { GripVertical, SlidersHorizontal } from "lucide-react"
 
 const filterCategories = [
   {
@@ -31,8 +32,11 @@ const filterCategories = [
 
 export default function FilterBar() {
   const [selectedFilters, setSelectedFilters] = React.useState<Record<string, string[]>>({})
-  const [width, setWidth] = React.useState(300)
+  const [width, setWidth] = React.useState(200)
   const [isResizing, setIsResizing] = React.useState(false)
+  const [isVisible, setIsVisible] = React.useState(true)
+  const [isSmallScreen, setIsSmallScreen] = React.useState(false)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const filterBarRef = React.useRef<HTMLDivElement>(null)
 
   const handleCheckboxChange = (category: string, option: string) => {
@@ -58,7 +62,7 @@ export default function FilterBar() {
 
     const handleMouseMove = (mouseMoveEvent: MouseEvent) => {
       const newWidth = startWidth + mouseMoveEvent.clientX - startX
-      setWidth(Math.max(200, Math.min(newWidth, 600)))
+      setWidth(Math.max(150, Math.min(newWidth, 400)))
     }
 
     const handleMouseUp = () => {
@@ -83,13 +87,42 @@ export default function FilterBar() {
     }
   }, [isResizing])
 
-  return (
-    <aside 
-      ref={filterBarRef}
-      className="bg-background border-r relative"
-      style={{ width: `${width}px`, minWidth: '200px', maxWidth: '600px' }}
-    >
-      <div className="p-4">
+  const toggleFilterVisibility = () => {
+    setIsVisible(!isVisible)
+  }
+
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 768) // Adjust this value as needed
+      if (isSmallScreen) {
+        if (isVisible) {
+          toggleFilterVisibility()
+        }
+      }
+      else {
+        if (!isVisible) {
+          toggleFilterVisibility()
+        }
+      }
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  const handleApplyFilters = () => {
+    console.log('Applied filters:', selectedFilters)
+    // Here you would typically update your main component's state or call an API
+    if (isSmallScreen) {
+      setIsDialogOpen(false)
+    }
+  }
+
+  const FilterContent = () => (
+    <div className="flex flex-col h-auto">
+      <div className="flex-grow overflow-auto p-4">
         <h2 className="text-lg font-semibold mb-4">Filters</h2>
         <Accordion type="multiple" className="w-full">
           {filterCategories.map((category, index) => (
@@ -118,14 +151,48 @@ export default function FilterBar() {
           ))}
         </Accordion>
       </div>
-      <div 
-        className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-gray-300 hover:bg-gray-400 transition-colors"
-        onMouseDown={startResizing}
-      >
-        <div className="absolute top-1/2 right-0 transform -translate-y-1/2 p-1">
-          <GripVertical size={20} className="text-gray-500" />
-        </div>
+      <div className="p-4">
+        <Button onClick={handleApplyFilters} className="w-full">
+          Apply
+        </Button>
       </div>
-    </aside>
+    </div>
+  )
+
+  return (
+    <div className="flex">
+      {!isSmallScreen && isVisible && (
+        <aside 
+          ref={filterBarRef}
+          className="bg-background border-r relative"
+          style={{ width: `${width}px`, minWidth: '150px', maxWidth: '400px' }}
+        >
+          <FilterContent />
+          <div 
+            className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-gray-300 hover:bg-gray-400 transition-colors"
+            onMouseDown={startResizing}
+          >
+            <div className="absolute top-1/2 right-0 transform -translate-y-1/2 p-1">
+              <GripVertical size={20} className="text-gray-500" />
+            </div>
+          </div>
+        </aside>
+      )}
+      {isSmallScreen && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTitle className="m-0 font-medium hidden">
+            Filter Bar
+          </DialogTitle>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 fixed bottom-4 right-4 z-50 rounded-full">
+              <SlidersHorizontal className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="w-[60vw] max-w-auto h-[90vh] rounded-xl p-0">
+            <FilterContent />
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
   )
 }

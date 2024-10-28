@@ -1,5 +1,3 @@
-"use client"
-
 import FilterBar from "@/components/dashboard/FilterBar"
 import { Suspense } from "react"
 import { Input } from "@/components/ui/input"
@@ -20,8 +18,8 @@ export default function Dashboard() {
       <div className="flex flex-row min-h-screen">
         <FilterBar />
         <main className="flex-1 p-6 overflow-x-hidden">
-        <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
-        <Title>Dashboard</Title>
+        <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
+          <Title>Dashboard</Title>
           <div className="flex gap-4">
             <Button>
               <Plus/> Add Startup
@@ -31,7 +29,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-row gap-4 mb-6">
           <div className="relative flex-grow w-full">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             <Input
@@ -42,7 +40,7 @@ export default function Dashboard() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="font-normal w-full h-10 sm:w-auto">
+              <Button variant="outline" className="font-normal h-10 w-auto">
                 Sort By <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

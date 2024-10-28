@@ -37,9 +37,9 @@ const menuItems = [
 export default function NavBar() {
     const pathname = usePathname();
     return (
-      <div className="flex flex-col my-1 shadow-sm">
-        <div className='flex items-center justify-items-start max-md:justify-center gap-20 h-full'>
-            <Link href="/" className="flex items-center justify-center align-middle p-2 gap-4 ">
+      <div className="flex flex-col w-auto my-1 shadow-sm">
+        <div className='flex items-center justify-items-start max-lg:justify-center gap-20 h-full'>
+            <Link href="/" className="max-lg:hidden max-lg:fixed flex items-center justify-center align-middle p-2 gap-4 ">
                 <Image 
                   src="/vinuni.png" 
                   alt="Vinuni Logo" 
