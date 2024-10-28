@@ -15,7 +15,7 @@ const schema = z.object({
     phone: z.string(),
     email: z.string().email({ message: "Invalid email address!" }),
     description: z.string(),
-    priority: z.enum(["P1", "P2","P3"], { message: "Priority is required" }),
+    priority: z.enum(["P0", "P1","P2"], { message: "Priority is required" }),
     pitchdeck: z.instanceof(File, { message: "Pitchdeck is required" }),
     logo: z.instanceof(File, { message: "Logo is required" }),
   });
@@ -52,7 +52,7 @@ const StartupForm = ({type,data}:{type: "create" | "update"; data?:any}) => {
           register={register}
           error={errors?.founderName}
         />
-        <div className="flex justify-between flex-wrap gap-4">
+        <div className="flex justify-between flex-wrap gap-2">
             <div className="flex flex-col gap-2 w-full md:w-1/4">
             <label className="text-xs text-gray-500">Phase</label>
             <select

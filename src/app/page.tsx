@@ -13,6 +13,7 @@ import {
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
+import FormModal from "@/components/FormModal"
 
 export default function Dashboard() {
   return (
@@ -23,10 +24,8 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
         <Title>Dashboard</Title>
           <div className="flex gap-4">
+            <FormModal table="startup" type="create"/>
             <Button>
-              <Plus/> Add Startup
-            </Button>
-            <Button variant="outline">
               <Download/> Export
             </Button>
           </div>
@@ -42,7 +41,7 @@ export default function Dashboard() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="font-normal w-full h-10 sm:w-auto">
+              <Button className="font-normal w-full h-10 sm:w-auto">
                 Sort By <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

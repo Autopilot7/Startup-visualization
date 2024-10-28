@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { inter } from "@/components/ui/fonts";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/NavBar";
+import NavBar from "../components/Navbar"; // Adjust the path as necessary
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "VinUniversity Startup Visualization", 
@@ -15,10 +17,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
-        <NavBar/>
-        {children}
+        <div className="h-screen flex">
+        <div className="w-[100%] md:w-[100%] lg:w-[100%] xl:w-[100%] bg-[#F7F8FA] overflow-scroll">
+          <NavBar />
+          {children}
+        </div>
+      </div> 
       </body>
     </html>
+    
   );
-} 
+}

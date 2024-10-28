@@ -1,7 +1,19 @@
-"use client"
-import Image from "next/image"
-import { useState } from "react";
-import StartupForm from "./forms/StartupForm";
+"use client";
+
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { JSX, useState } from "react";
+
+const StartupForm = dynamic(() => import("./forms/StartupForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+
+
+const forms: {
+  [key: string]: (type: "create" | "update", data?: any) => JSX.Element;
+} = {
+  startup: (type, data) => <StartupForm type={type} data={data} />,
+};
 
 const FormModal = ({table,type,data,id}:{
     table: |"startup";
@@ -30,8 +42,8 @@ const Form = () => {
             </button>
           </form>
         ) : type === "create" || type === "update" ? (
-          //form[table](type, data)
-          <StartupForm type="create"/>
+          forms[table](type, data)
+   
         ) : (
           "Form not found!"
         );
@@ -40,14 +52,16 @@ const Form = () => {
 return (
         <>
           <button
-            className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
+            className="flex items-center justify-center border rounded-lg px-6 py-2 text-black bg-green-100"
             onClick={() => setOpen(true)}
           >
-            <Image src={`/${type}.png`} alt="" width={16} height={16} />
+            <Image src={`/${type}.png`} alt="Create Icon" width={12} height={12} className="mr-2" />
+            <span>{type.charAt(0).toUpperCase() + type.slice(1)} Startup</span>
           </button>
+
           {open && (
             <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-              <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[90%] lg:w-[80%] xl:w-[70%] 2xl:w-[60%]">
+              <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[90%] lg:w-[80%] xl:w-[80%] 2xl:w-[80%]">
                 <Form />
                 <div
                   className="absolute top-4 right-4 cursor-pointer"

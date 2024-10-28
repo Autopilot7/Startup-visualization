@@ -125,6 +125,7 @@ export default function Visualization() {
           </CardContent>
         </Card>
       </div>
+      
     </div>
   );
 }
