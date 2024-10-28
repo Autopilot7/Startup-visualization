@@ -1,4 +1,8 @@
 ## Getting Started
+To install the dependencies, run:
+```bash
+pnpm install
+```
 
 First, run the development server:
 

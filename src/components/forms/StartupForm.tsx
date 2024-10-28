@@ -15,7 +15,7 @@ const schema = z.object({
     phone: z.string(),
     email: z.string().email({ message: "Invalid email address!" }),
     description: z.string(),
-    priority: z.enum(["P0", "P1","P2"], { message: "Priority is required" }),
+    priority: z.enum(["P1", "P2","P3"], { message: "Priority is required" }),
     pitchdeck: z.instanceof(File, { message: "Pitchdeck is required" }),
     logo: z.instanceof(File, { message: "Logo is required" }),
   });

@@ -9,9 +9,9 @@ export type StartupCardProps = {
   logo: string;
   field: string;
   status: 'Active' | 'Inactive';
-  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  priority: 'P1' | 'P2' | 'P3';
   phase: 'Ideation' | 'Incubation' | 'Acceleration';
-  launch_date: 'AY 2021-2022' | 'AY 2022-2023' | 'AY 2023-2024';
+  launch_date: 'AY 2021' | 'AY 2022' | 'AY 2023' | 'AY 2024';
 };
 
 export const dummyStartupCardProps: StartupCardProps = {
@@ -22,11 +22,12 @@ export const dummyStartupCardProps: StartupCardProps = {
     'A gamified app that teaches personal finance and investing through interactive lessons and quizzes, making financial literacy fun, engaging, and easy to learn.',
   logo: 'https://static.ybox.vn/2023/5/3/1683723223801-336640751_761918645261000_7516888285445287067_n.jpg',
   field: 'Finance',
-  status: 'Active' as const,
-  priority: 'P1' as const,
-  phase: 'Incubation' as const,
-  launch_date: 'AY 2022-2023' as const,
+  status: 'Active',
+  priority: 'P1',
+  phase: 'Incubation',
+  launch_date: 'AY 2022',
 };
+
 
 export default function StartupCard({
   name,

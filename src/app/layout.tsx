@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { inter } from "@/components/ui/fonts";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "VinUniversity Startup Visualization", 
@@ -16,10 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <NavBar/>
+        {children}
+      </body>
     </html>
   );
-}
+} 
