@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { inter } from "@/components/ui/fonts";
 import "./globals.css";
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "VinUniversity Startup Visualization", 

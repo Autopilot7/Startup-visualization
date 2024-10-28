@@ -43,13 +43,13 @@ export default function NavBar() {
                 <Image 
                   src="/vinuni.png" 
                   alt="Vinuni Logo" 
-                  width={200} 
-                  height={200} 
+                  width={150} 
+                  height={150} 
                   className="max-md:hidden w-auto h-auto"
                 />
             </Link>
 
-            <div className="text-xl flex gap-8 items-center">
+            <div className="text-xs flex gap-8 items-center">
                 {menuItems.map((i) => (
                     <div className="flex items-center gap-32" key={i.title}>
                         {i.items.map((item) => (
