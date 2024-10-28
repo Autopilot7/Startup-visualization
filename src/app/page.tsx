@@ -33,7 +33,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
           <Title>Dashboard</Title>
           <div className="flex gap-4">
-            <Button>
+            <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
               <Plus/> Add Startup
             </Button>
             <Button variant="outline">

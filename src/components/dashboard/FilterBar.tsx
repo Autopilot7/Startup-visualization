@@ -173,7 +173,7 @@ export default function FilterBar() {
               </Accordion>
             </div>
             <div className="p-4">
-              <Button onClick={handleApplyFilters} className="w-full">
+              <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
                 Apply
               </Button>
             </div>
@@ -235,7 +235,7 @@ export default function FilterBar() {
                 </Accordion>
               </div>
               <div className="p-4">
-                <Button onClick={handleApplyFilters} className="w-full">
+                <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
                   Apply
                 </Button>
               </div>
