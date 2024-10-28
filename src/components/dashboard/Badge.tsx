@@ -21,7 +21,7 @@ export default function Badge({type, value}: {type: string, value: string}) {
     };
 
     return (
-        <span className={`rounded px-2.5 py-0.5 text-sm font-medium text-white ${getColorClass(value, type)}`}>
+        <span className={`rounded px-2.5 py-0.5 text-sm max-sm:text-xs font-medium text-white ${getColorClass(value, type)}`}>
             {value}
         </span>
     );
