@@ -28,7 +28,6 @@ export const dummyStartupCardProps: StartupCardProps = {
   launch_date: 'AY 2022',
 };
 
-
 export default function StartupCard({
   name,
   short_description,
