@@ -1,66 +1,77 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { House, ChartNoAxesCombined, MessageCircle } from 'lucide-react';
+import { Montserrat } from "next/font/google";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
+
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "700"] });
 
 const menuItems = [
   {
     title: "MENU",
     items: [
       {
-        icon: "/homepage.png",
-        label: "Home",
+        icon: <House size={30} />, // Set the desired size here
+        label: "Dashboard",
         href: "/",
         visible: ["admin", "visitor"],
       },
       {
-        icon: "/visualization.png",
+        icon: <ChartNoAxesCombined size={30} />,
         label: "Visualization",
         href: "/visualization",
         visible: ["admin", "visitor"],
       },
       {
-        icon: "/message.png",
-        label: "Message",
+        icon: <MessageCircle size={30} />,
+        label: "Messages",
         href: "/messages",
         visible: ["admin", "visitor"],
       }
-
     ],
   },
 ];
 
-const Navbar = () => {
+export default function NavBar() {
+    const pathname = usePathname();
     return (
-        <div className='flex items-center justify-between p-4 bg-white-800 border'>
-            <Link href="/" className="flex items-center justify-center lg:justify-start gap-4 ">
-          <Image src="/elablogo.png" alt="Elab Logo" width={240} height={240} />
+      <div className="flex flex-col my-1 shadow-sm">
+        <div className='flex items-center justify-items-start max-md:justify-center gap-20 h-full'>
+            <Link href="/" className="flex items-center justify-center align-middle p-2 gap-4 ">
+                <Image 
+                  src="/vinuni.png" 
+                  alt="Vinuni Logo" 
+                  width={150} 
+                  height={150} 
+                  className="max-md:hidden w-auto h-auto"
+                />
             </Link>
 
-            <div className="mt-4 text-[18px] flex gap-8 items-center">
-          {menuItems.map((i) => (
-              <div className="flex items-center gap-32" key={i.title}>
-            {i.items.map((item) => (
-                <Link 
-              href={item.href} 
-              key={item.label}
-              className="flex items-center gap-4 py-2"  
-                >
-              <Image src={item.icon} alt="" width={25} height={25} />
-              <span className="hidden lg:block font-bold ">{item.label}</span>
-                </Link>
-            ))}
-              </div>
-          ))}
-            </div>
-
-            {/* Icon and User */}
-            <div className='flex items-center gap-6 justify-end'>
-          <div className='flex flex-col'>
-              <span className='text-[20px] leading-3 font-medium'>Elab</span>
-              <span className="text-[16px] text-gray-500 text-right">Ha Noi, Viet Nam</span>
-          </div>
-            </div>
+            <div className="text-xl flex gap-8 items-center justify-center">
+              {menuItems.map((i) => (
+                <div className="flex items-center gap-32" key={i.title}>
+                  {i.items.map((item) => (
+                    <Link 
+                      href={item.href} 
+                      key={item.label}
+                      className={clsx(
+                        "flex grow items-center gap-2 py-2 hover:text-blue-600",
+                        {
+                          "text-blue-600": pathname === item.href,
+                        }
+                      )}
+                    >
+                      {item.icon}
+                      <span className={`${montserrat.className} hidden md:block font-medium`}>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              ))}
         </div>
+        </div>
+        <hr className="w-full border-t-2 border-gray-300" />
+      </div>
     )
 }
-
-export default Navbar;

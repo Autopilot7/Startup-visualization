@@ -1,12 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { JSX, useState } from "react";
-
-const StartupForm = dynamic(() => import("./forms/StartupForm"), {
-  loading: () => <h1>Loading...</h1>,
-});
+import StartupForm from "./forms/StartupForm";
 
 
 const forms: {
@@ -55,8 +51,8 @@ return (
             className="flex items-center justify-center border rounded-lg px-6 py-2 text-black bg-green-100"
             onClick={() => setOpen(true)}
           >
-            <Image src={`/${type}.png`} alt="Create Icon" width={12} height={12} className="mr-2" />
-            <span>{type.charAt(0).toUpperCase() + type.slice(1)} Startup</span>
+            <Image src={`/${type}.png`} alt="Create Icon" width={10} height={10} className="mr-2" />
+            <span className="font-bold">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
           </button>
 
           {open && (

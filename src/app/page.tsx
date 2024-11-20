@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
+import Link from "next/link"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
 import FormModal from "@/components/FormModal"
@@ -24,7 +25,13 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
         <Title>Dashboard</Title>
           <div className="flex gap-4">
-            <FormModal table="startup" type="create"/>
+          <Link href="/addstartup">
+            <Button className="bg-green-200 text-green-800 hover:bg-green-300 px-4 py-2 rounded-md">
+              Add Startup
+            </Button>
+          </Link>
+
+
             <Button>
               <Download/> Export
             </Button>
