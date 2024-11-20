@@ -1,4 +1,3 @@
-'use client'
 import FilterBar from "@/components/dashboard/FilterBar"
 import { Suspense } from "react"
 import { Input } from "@/components/ui/input"
@@ -12,19 +11,13 @@ import {
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
-import { useState } from "react"
+import { auth } from "@/auth"
 
-export default function Dashboard() {
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
+export default async function Dashboard() {
 
-  const filteredStartups = dummyStartupTableProps.startups.filter((startup) =>
-    startup.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+  const session = await auth()
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row min-h-screen">
@@ -33,12 +26,16 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
           <Title>Dashboard</Title>
           <div className="flex gap-4">
-            <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
-              <Plus/> Add Startup
-            </Button>
-            <Button variant="outline">
-              <Download/> Export
-            </Button>
+            {session?.user && (
+              <div className="flex gap-4">
+                <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
+                  <Plus/> Add Startup
+                </Button>
+                <Button variant="outline">
+                  <Download/> Export
+                </Button>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-row gap-4 mb-6">
@@ -48,8 +45,6 @@ export default function Dashboard() {
               type="search"
               placeholder="Search startups..."
               className="font-normal pl-10 w-full h-10"
-              value={searchQuery}
-              onChange={handleSearchChange}
             />
           </div>
           <DropdownMenu>
@@ -66,7 +61,7 @@ export default function Dashboard() {
           </DropdownMenu>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <StartupTable startups={filteredStartups} />
+          <StartupTable startups={dummyStartupTableProps.startups} />
         </Suspense>
         </main>
       </div>

@@ -1,37 +1,24 @@
 "use client";
 
 import Image from 'next/image'
-import { useState } from 'react';
+import { useActionState, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { signIn } from 'next-auth/react';
+import { authenticate } from '@/lib/actions';
+import {
+  ExclamationCircleIcon,
+} from '@heroicons/react/24/outline';
+// import { toast } from "sonner"
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string>('');
     const router = useRouter();
 
-    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setError(''); // Clear previous errors
-  
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false, // Prevent automatic redirect
-      });
-  
-      if (result?.error) {
-        // Show an error toast
-        toast.error(result.error);
-      } else {
-        // Show a success toast
-        toast.success('Login successful!');
-        router.push('/'); // Redirect to dashboard
-      }
-    };
-
+    const [errorMessage, formAction, isPending] = useActionState(
+      authenticate,
+      undefined,
+    );
+    
     return (
       <>
         <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -48,7 +35,7 @@ export default function LoginPage() {
               </h2>
             </div>
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form action={formAction} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                     Email address
@@ -97,6 +84,7 @@ export default function LoginPage() {
                     type="submit"
                     className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     formNoValidate={false}
+                    aria-disabled={isPending}
                   >
                     Sign in as admin
                   </button>
@@ -104,10 +92,17 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => router.push('/')}
                     className="mt-3 flex w-full justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm/6 font-semibold text-indigo-600 shadow-sm hover:bg-gray-200"
+                    aria-disabled={isPending}
                   >
                     Sign in as guest
                   </button>
                 </div>
+                {errorMessage && (
+                  <>
+                    <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                    <p className="text-sm text-red-500">{errorMessage}</p>
+                  </>
+                )}
               </form>
             </div>
           </div>

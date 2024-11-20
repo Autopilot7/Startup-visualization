@@ -1,10 +1,8 @@
-'use client';
-
 import { inter } from "@/components/ui/fonts";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
 import NavBar from "@/components/NavBar";
+import { SessionProvider } from "next-auth/react";
 
 export default function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {
   return (

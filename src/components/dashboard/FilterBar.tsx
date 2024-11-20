@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
@@ -5,29 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { GripVertical, SlidersHorizontal } from "lucide-react"
-
-const filterCategories = [
-  {
-    name: 'Priority',
-    options: ['All', 'P1', 'P2', 'P3']
-  },
-  {
-    name: 'Status',
-    options: ['All', 'Active', 'Inactive']
-  },
-  {
-    name: "Phase",
-    options: ["All", "Ideation", "Incubation", "Acceleration"]
-  },
-  {
-    name: 'Category',
-    options: ['All', 'Technology', "Travel", 'Healthcare', 'Finance', 'Education', 'Others']
-  },
-  {
-    name: "Launch date",
-    options: ["All", "AY 2021", "AY 2022", "AY 2023", "AY 2024"]
-  }
-]
+import { filterCategories } from '@/lib/filters'
 
 export default function FilterBar() {
   const [selectedFilters, setSelectedFilters] = React.useState<Record<string, string[]>>({})

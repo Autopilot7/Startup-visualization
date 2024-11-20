@@ -1,7 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BACKEND_URL = 'https://startupilot.cloud.strixthekiet.me'
 
 export const endpoints = {
-  login: `${API_BASE_URL}/api/auth/token/`,
-  refresh: `${API_BASE_URL}/api/auth/token/refresh/`,
-  startups: `${API_BASE_URL}/api/startups/`,
+  login: `${BACKEND_URL}/api/auth/token/`,
+  refresh: `${BACKEND_URL}/api/auth/token/refresh/`,
+  startups: `${BACKEND_URL}/api/startups/`,
 };

@@ -5,7 +5,8 @@ import { House, ChartNoAxesCombined, MessageCircle, LogIn, LogOut } from 'lucide
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { montserrat } from "@/components/ui/fonts";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { handleSignOut } from "@/lib/actions";
 
 const menuItems = [
   {
@@ -29,11 +30,10 @@ const menuItems = [
         href: "/messages",
         visible: ["admin", "visitor"],
       },
-      // Add Sign In/Sign Out as a menu item
       {
-        icon: null, // Icon will be dynamic
-        label: "Sign In/Sign Out",
-        href: "/login", // No navigation; use onClick instead
+        icon: <LogIn size={30} />, 
+        label: "Sign In",
+        href: "/login", 
         visible: ["admin", "visitor"], // Always visible
         isAuthButton: true, // Custom property to identify this as a special button
       },
@@ -45,11 +45,6 @@ export default function NavBar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // Don't render NavBar on login page
-  if (pathname.includes('login')) {
-    return null;
-  }
-
   return (
     <div className="flex flex-col w-auto my-1 shadow-sm">
       <div className="flex items-center justify-items-start max-lg:justify-around gap-20 h-full">
@@ -57,8 +52,8 @@ export default function NavBar() {
           <Image
             src="/vinuni.png"
             alt="Vinuni Logo"
-            width={200}
-            height={200}
+            width={150}
+            height={150}
             className="max-md:hidden w-auto h-auto"
           />
         </Link>
@@ -67,17 +62,17 @@ export default function NavBar() {
           {menuItems.map((i) => (
             <div className="flex items-center gap-32" key={i.title}>
               {i.items.map((item) =>
-                item.isAuthButton ? (
+                (item.isAuthButton && session) ? (
                   <div
                     key={item.label}
                     className={clsx(
                       "flex items-center gap-2 py-2 hover:text-blue-600 cursor-pointer",
                     )}
-                    onClick={() => (session ? signOut() : signIn())} // Handle Sign In/Sign Out
+                    onClick={() => handleSignOut()} // Handle Sign Out
                   >
-                    {session ? <LogOut size={30} /> : <LogIn size={30} />}
+                    {<LogOut size={30} />}
                     <span className={`${montserrat.className} hidden md:block font-medium`}>
-                      {session ? "Sign Out" : "Sign In"}
+                      Sign Out
                     </span>
                   </div>
                 ) : (
