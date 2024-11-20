@@ -13,7 +13,6 @@ import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/Sta
 import Title from "@/components/Title"
 import { auth } from "@/auth"
 
-
 export default async function Dashboard() {
 
   const session = await auth()
@@ -36,6 +35,11 @@ export default async function Dashboard() {
                 </Button>
               </div>
             )}
+          </div>
+          <div className="flex-1 flex sm:justify-end items-center mr-5">
+              {session?.user && (
+                <span className="text-gray-600 text-xl">Welcome, Elab!</span>
+              )}
           </div>
         </div>
         <div className="flex flex-row gap-4 mb-6">
