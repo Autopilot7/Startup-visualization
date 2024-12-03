@@ -1,5 +1,6 @@
+"use client";
 import FilterBar from "@/components/dashboard/FilterBar"
-import { Suspense } from "react"
+import { Suspense, useContext } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,11 +12,11 @@ import {
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
-import { auth } from "@/auth"
+import { AuthContext } from "@/context/AuthContext"
 
-export default async function Dashboard() {
-
-  const session = await auth()
+export default function Dashboard() {
+  const { isAuthenticated } = useContext(AuthContext);
+  console.log(isAuthenticated)
 
   return (
     <div className="flex flex-col">
@@ -25,7 +26,7 @@ export default async function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
           <Title>Dashboard</Title>
           <div className="flex gap-4">
-            {session?.user && (
+            {isAuthenticated && (
               <div className="flex gap-4">
                 <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
                   <Plus/> Add Startup
@@ -37,7 +38,7 @@ export default async function Dashboard() {
             )}
           </div>
           <div className="flex-1 flex sm:justify-end items-center mr-5">
-              {session?.user && (
+              {isAuthenticated && (
                 <span className="text-gray-600 text-xl">Welcome, Elab!</span>
               )}
           </div>

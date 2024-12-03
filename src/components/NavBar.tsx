@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { House, ChartNoAxesCombined, MessageCircle, LogIn, LogOut } from 'lucide-react';
+import { House, ChartNoAxesCombined, LogIn, LogOut } from 'lucide-react';
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { montserrat } from "@/components/ui/fonts";
-import { useSession } from "next-auth/react";
-import { handleSignOut } from "@/lib/actions";
+import { AuthContext } from "@/context/AuthContext";
+import { useContext } from "react";
 
 const menuItems = [
   {
@@ -25,12 +25,6 @@ const menuItems = [
         visible: ["admin", "visitor"],
       },
       {
-        icon: <MessageCircle size={30} />,
-        label: "Messages",
-        href: "/messages",
-        visible: ["admin", "visitor"],
-      },
-      {
         icon: <LogIn size={30} />, 
         label: "Sign In",
         href: "/login", 
@@ -43,7 +37,7 @@ const menuItems = [
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   return (
     <div className="flex flex-col w-auto my-1 shadow-sm">
@@ -62,13 +56,13 @@ export default function NavBar() {
           {menuItems.map((i) => (
             <div className="flex items-center gap-32" key={i.title}>
               {i.items.map((item) =>
-                (item.isAuthButton && session) ? (
+                (item.isAuthButton && isAuthenticated) ? (
                   <div
                     key={item.label}
                     className={clsx(
                       "flex items-center gap-2 py-2 hover:text-blue-600 cursor-pointer",
                     )}
-                    onClick={() => handleSignOut()} // Handle Sign Out
+                    onClick={() => logout()} // Handle Sign Out
                   >
                     {<LogOut size={30} />}
                     <span className={`${montserrat.className} hidden md:block font-medium`}>
