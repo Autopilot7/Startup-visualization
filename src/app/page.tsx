@@ -13,10 +13,9 @@ import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
 import { AuthContext } from "@/context/AuthContext"
-import { jwtDecode } from "jwt-decode";
 
 export default function Dashboard() {
-  const { accessToken, isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <div className="flex flex-col">

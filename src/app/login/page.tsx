@@ -52,12 +52,12 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('Login error:', err.response.status);
 
       // Extract and set the error message from the response
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrorMessage(err.response.data.message);
-        toast.error(err.response.data.message);
+      if (err.response.status === 401) {
+        setErrorMessage(err.response.data.detail);
+        toast.error(err.response.data.detail);
       } else {
         setErrorMessage('An error occurred. Please try again.');
         toast.error('An error occurred. Please try again.');
