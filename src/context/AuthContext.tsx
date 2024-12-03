@@ -2,6 +2,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { jwtDecode } from "jwt-decode";
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -24,13 +25,19 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+interface DecodedToken {
+  exp: number; // Expiration time as a UNIX timestamp
+  [key: string]: any;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const router = useRouter();
 
   // Function to check token expiration and set a timeout for automatic logout
   const scheduleTokenExpiration = (token: string) => {
-    const expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days from now in milliseconds
+    const decoded: DecodedToken = jwtDecode(token);
+    const expiresAt = decoded.exp * 1000; // Convert to milliseconds
     const timeout = expiresAt - Date.now();
 
     if (timeout > 0) {
