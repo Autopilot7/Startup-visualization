@@ -1,15 +1,26 @@
-import { FieldError } from "react-hook-form";
-
-type InputFieldProps = {
-  label: string;
-  type?: string;
-  register: any;
-  name: string;
-  defaultValue?: string;
-  error?: FieldError;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
-  className?: string;
-};
+import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
+                
+                
+                
+                type InputFieldProps = {
+                
+                  label: string;
+                
+                  type?: string;
+                
+                  register: any;
+                
+                  name: string;
+                
+                  defaultValue?: string;
+                
+                  error?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
+                
+                  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+                
+                  className?: string;
+                
+                };
 
 const InputField = ({
   label,

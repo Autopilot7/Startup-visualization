@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
+import Link from "next/link"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
 import { AuthContext } from "@/context/AuthContext"
@@ -25,14 +26,18 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
           <Title>Dashboard</Title>
           <div className="flex gap-4">
+
             {isAuthenticated && (
               <div className="flex gap-4">
+                <Link href="/addstartup">
                 <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
                   <Plus/> Add Startup
                 </Button>
+                </Link>
                 <Button variant="outline">
                   <Download/> Export
                 </Button>
+                
               </div>
             )}
           </div>
@@ -53,7 +58,7 @@ export default function Dashboard() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="font-normal h-10 w-auto">
+              <Button className="font-normal h-10 w-auto">
                 Sort By <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
