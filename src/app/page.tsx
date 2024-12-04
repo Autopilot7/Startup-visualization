@@ -1,7 +1,6 @@
-"use client"
-
+"use client";
 import FilterBar from "@/components/dashboard/FilterBar"
-import { Suspense } from "react"
+import { Suspense, useContext } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,29 +14,41 @@ import Link from "next/link"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
 import FormModal from "@/components/FormModal"
+import { AuthContext } from "@/context/AuthContext"
 
 export default function Dashboard() {
+  const { isAuthenticated } = useContext(AuthContext);
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row min-h-screen">
         <FilterBar />
         <main className="flex-1 p-6 overflow-x-hidden">
-        <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
-        <Title>Dashboard</Title>
+        <div className="flex flex-col sm:flex-row justify-items-start gap-4 mb-6">
+          <Title>Dashboard</Title>
           <div className="flex gap-4">
-          <Link href="/addstartup">
-            <Button className="bg-green-200 text-green-800 hover:bg-green-300 px-4 py-2 rounded-md">
-              Add Startup
-            </Button>
-          </Link>
 
-
-            <Button>
-              <Download/> Export
-            </Button>
+            {isAuthenticated && (
+              <div className="flex gap-4">
+                <Link href="/addstartup">
+                <Button className="bg-sky-500 hover:bg-sky-600 active:bg-blue-700">
+                  <Plus/> Add Startup
+                </Button>
+                </Link>
+                <Button variant="outline">
+                  <Download/> Export
+                </Button>
+                
+              </div>
+            )}
+          </div>
+          <div className="flex-1 flex sm:justify-end items-center mr-5">
+              {isAuthenticated && (
+                <span className="text-gray-600 text-xl">Welcome, Elab!</span>
+              )}
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-row gap-4 mb-6">
           <div className="relative flex-grow w-full">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             <Input
@@ -48,7 +59,7 @@ export default function Dashboard() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="font-normal w-full h-10 sm:w-auto">
+              <Button className="font-normal h-10 w-auto">
                 Sort By <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -60,7 +71,7 @@ export default function Dashboard() {
           </DropdownMenu>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <StartupTable {...dummyStartupTableProps} />
+          <StartupTable startups={dummyStartupTableProps.startups} />
         </Suspense>
         </main>
       </div>

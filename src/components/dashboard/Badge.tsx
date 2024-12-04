@@ -17,11 +17,14 @@ export default function Badge({type, value}: {type: string, value: string}) {
         if (type === "launch_date") {
             return "bg-orange-500";
         }
+        if (type === "category") {
+            return "bg-sky-500";
+        }
         return text_to_color[value.toLowerCase() as ColorKey] || "default-color-class"; // Fallback color class
     };
 
     return (
-        <span className={`rounded px-2.5 py-0.5 text-sm font-medium text-white ${getColorClass(value, type)}`}>
+        <span className={`rounded px-2.5 py-0.5 text-sm max-sm:text-xs font-medium text-white ${getColorClass(value, type)}`}>
             {value}
         </span>
     );

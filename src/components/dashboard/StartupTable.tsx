@@ -26,7 +26,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'A network of communities where people can dive into their interests, hobbies, and passions, and connect with others who share them.',
       logo: '/dummy_logo/reddit.png',
-      field: 'Social Media',
+      field: 'Others',
       status: 'Active',
       priority: 'P3',
       phase: 'Acceleration',
@@ -38,7 +38,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'An online marketplace that connects people looking for lodging with those wanting to rent out their homes, offering a unique travel experience.',
       logo: '/dummy_logo/airbnb.png',
-      field: 'TravelTech',
+      field: 'Travel',
       status: 'Active',
       priority: 'P3',
       phase: 'Incubation',
@@ -50,7 +50,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'A cloud-based file storage and collaboration platform, offering secure storage and file sharing for individuals and businesses.',
       logo: '/dummy_logo/dropbox.png',
-      field: 'Cloud Computing',
+      field: 'Technology',
       status: 'Active',
       priority: 'P1',
       phase: 'Acceleration',
@@ -62,7 +62,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'An open-source DevOps platform that provides a suite of tools for developers to collaborate, build, and deploy code efficiently.',
       logo: '/dummy_logo/gitlab.png',
-      field: 'Software Development',
+      field: 'Technology',
       status: 'Active',
       priority: 'P2',
       phase: 'Ideation',
@@ -74,7 +74,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'A live streaming platform primarily focused on video games and esports but expanding to various types of live content.',
       logo: '/dummy_logo/twitch.png',
-      field: 'Entertainment',
+      field: 'Others',
       status: 'Active',
       priority: 'P3',
       phase: 'Acceleration',
@@ -86,7 +86,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'An online learning platform offering courses, specializations, and degrees from universities and institutions worldwide.',
       logo: '/dummy_logo/coursera.png',
-      field: 'EdTech',
+      field: 'Education',
       status: 'Active',
       priority: 'P2',
       phase: 'Ideation',
@@ -98,7 +98,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'A financial services and SaaS company that enables businesses to accept payments, manage revenue, and conduct financial operations online.',
       logo: '/dummy_logo/stripe.png',
-      field: 'Fintech',
+      field: 'Finance',
       status: 'Inactive',
       priority: 'P1',
       phase: 'Acceleration',
@@ -110,7 +110,7 @@ export const dummyStartupTableProps: StartupTableProps = {
       long_description:
         'An exercise equipment and media company that offers stationary bikes and treadmills, providing access to live and on-demand fitness classes.',
       logo: '/dummy_logo/peloton.png',
-      field: 'HealthTech',
+      field: 'Healthcare',
       status: 'Inactive',
       priority: 'P2',
       phase: 'Acceleration',
@@ -121,7 +121,7 @@ export const dummyStartupTableProps: StartupTableProps = {
 
 export default function StartupTable({ startups }: StartupTableProps) {
   return (
-    <div className="space-y-4">
+    <div className="max-lg:space-y-4 lg:grid lg:grid-cols-2 md:gap-4">
       {startups.map((startup, index) => (
         <StartupCard key={index} {...startup} />
       ))}

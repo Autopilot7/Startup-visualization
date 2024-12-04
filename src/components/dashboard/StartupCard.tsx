@@ -7,7 +7,7 @@ export type StartupCardProps = {
   short_description: string;
   long_description: string;
   logo: string;
-  field: string;
+  field: "Technology" | "Healthcare" | "Finance" | "Education" | "Travel" | "Others";
   status: 'Active' | 'Inactive';
   priority: 'P1' | 'P2' | 'P3';
   phase: 'Ideation' | 'Incubation' | 'Acceleration';
@@ -28,7 +28,6 @@ export const dummyStartupCardProps: StartupCardProps = {
   launch_date: 'AY 2022',
 };
 
-
 export default function StartupCard({
   name,
   short_description,
@@ -46,7 +45,7 @@ export default function StartupCard({
         src={logo}
         width={100}
         height={100}
-        className="mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
+        className="max-md:mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
         alt={`${name} Logo`}
       />
       <div className="space-y-2 text-left max-md:space-y-2">
@@ -54,13 +53,14 @@ export default function StartupCard({
           <div className="flex flex-wrap items-center space-x-3">
             <p className="text-2xl font-bold md:text-3xl">{name}</p>
             <div className="w-[2px] bg-gray-300 max-md:h-6 md:block md:h-8"></div>
-            <p className="text-md font-light text-slate-500 md:text-lg">{field}</p>
+            <p className="text-md max-md:text-sm font-light text-slate-500">{short_description}</p>
           </div>
         </div>
-        <p className="text-sm font-normal text-gray-700 md:text-base">
+        <p className="text-sm max-sm:hidden font-normal text-gray-700 md:text-base">
           {long_description}
         </p>
         <div className="flex flex-wrap justify-start gap-2">
+          <Badge type="category" value={field} />
           <Badge type="phase" value={phase} />
           <Badge type="launch_date" value={launch_date} />
           <Badge type="priority" value={priority} />
