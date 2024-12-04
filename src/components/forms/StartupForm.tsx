@@ -7,7 +7,8 @@ import { z } from "zod";
 import InputField from "../InputField";
 import { Button } from "../ui/button";
 import Link from 'next/link';
-
+import { toast } from "react-toastify";
+import Modal from "../Modal"; // Assuming you have a Modal component
 
 
 
@@ -26,6 +27,8 @@ const schema = z.object({
   priority: z.enum(["P1", "P2", "P3"], { message: "Priority is required" }),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
+  location: z.string(), // Added location field
+  revenue: z.string(),  // Added revenue field
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -43,10 +46,29 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const [pitchdeckFileName, setPitchdeckFileName] = useState<string | null>(null);
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [members, setMembers] = useState<string[]>([]); // Danh sách member đã được thêm
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal for Back functionality
+  const [modalContent, setModalContent] = useState(''); // Declare modalContent state
 
   const onSubmit = handleSubmit((data) => {
     console.log(data);
+    toast.success('Startup saved successfully!');
   });
+
+  const handleBackClick = () => {
+    setModalContent('Are you sure you want to go back without saving?');
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setModalContent('');
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    // Perform the discard action or any other functionality
+  };
+
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -88,6 +110,22 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               )}
             </ul>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InputField
+              label="Location"
+              name="location"
+              defaultValue={data?.location}
+              register={register}
+              error={errors.location}
+            />
+            <InputField
+              label="Revenue"
+              name="revenue"
+              defaultValue={data?.revenue}
+              register={register}
+              error={errors.revenue}
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <select
               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
@@ -95,9 +133,9 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               defaultValue={data?.phase || ""}
             >
               <option value="">Phase*</option>
-              <option value="Peer mentor">Ideation</option>
-              <option value="Incubator">Incubation</option>
-              <option value="Post incubator">Acceleration</option>
+              <option value="Ideation">Ideation</option>
+              <option value="Incubation">Incubation</option>
+              <option value="Acceleration">Acceleration</option>
             </select>
             <select
               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
@@ -105,8 +143,8 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               defaultValue={data?.status || ""}
             >
               <option value="">Status*</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
             <select
               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
@@ -263,24 +301,42 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           </div>
         </div>
 
-        {/* Nút lưu */}
         <div className="lg:col-span-3 flex justify-center gap-4 mt-6">
           <button
             type="submit"
             className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
           >
-            Save
+            Submit
           </button>
-          <Link href="/">
-            <button
-              type="button"
-              className="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-red-600"
-            >
-              Discard
-            </button>
-          </Link>
+          <button
+            type="button"
+            onClick={handleBackClick}
+            className="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-red-600"
+          >
+            Back
+          </button>
         </div>
+        
       </form>
+      <Modal isOpen={isModalOpen} onClose={handleModalClose} title="Confirmation">
+        <p>{modalContent}</p>
+        <div className="flex justify-end gap-4 mt-4">
+          <Button
+            type="button"
+            onClick={handleModalConfirm}
+            className="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600"
+          >
+            Save
+          </Button>
+          <Button
+            type="button"
+            onClick={handleModalClose}
+            className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600"
+          >
+            Discard
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };
