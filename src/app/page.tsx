@@ -13,7 +13,6 @@ import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import Link from "next/link"
 import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
-import FormModal from "@/components/FormModal"
 import { AuthContext } from "@/context/AuthContext"
 
 export default function Dashboard() {

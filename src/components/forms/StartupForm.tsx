@@ -7,7 +7,7 @@ import { z } from "zod";
 import InputField from "../InputField";
 import { Button } from "../ui/button";
 import Link from 'next/link';
-import { toast } from "react-toastify";
+import { toast } from 'sonner';
 import Modal from "../Modal"; // Assuming you have a Modal component
 
 
