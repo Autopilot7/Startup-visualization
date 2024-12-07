@@ -1,4 +1,5 @@
 // components/StartupCard.tsx
+'use client';
 import Badge from '@/components/dashboard/Badge';
 import Image from 'next/image';
 
@@ -6,44 +7,52 @@ export type StartupCardProps = {
   name: string;
   short_description: string;
   long_description: string;
-  logo: string;
-  field: "Technology" | "Healthcare" | "Finance" | "Education" | "Travel" | "Others";
+  avatar: string;
+  linkedin:string;
+  facebook:string;
+  category: "Technology" | "Healthcare" | "Finance" | "Education" | "Travel" | "Others";
   status: 'Active' | 'Inactive';
   priority: 'P1' | 'P2' | 'P3';
   phase: 'Ideation' | 'Incubation' | 'Acceleration';
-  launch_date: 'AY 2021' | 'AY 2022' | 'AY 2023' | 'AY 2024';
+  batch: 'AY 2021' | 'AY 2022' | 'AY 2023' | 'AY 2024';
+  pitchdeck: string;
+  id: string;
+  email: string;
 };
 
 export const dummyStartupCardProps: StartupCardProps = {
   name: 'Finful',
-  short_description:
-    'Financial Version Of Duolingo',
-  long_description:
-    'A gamified app that teaches personal finance and investing through interactive lessons and quizzes, making financial literacy fun, engaging, and easy to learn.',
-  logo: 'https://static.ybox.vn/2023/5/3/1683723223801-336640751_761918645261000_7516888285445287067_n.jpg',
-  field: 'Finance',
+  short_description: 'Financial Version Of Duolingo',
+  long_description: 'A gamified app that teaches personal finance and investing through interactive lessons and quizzes, making financial literacy fun, engaging, and easy to learn.',
+  avatar: 'https://static.ybox.vn/2023/5/3/1683723223801-336640751_761918645261000_7516888285445287067_n.jpg',
+  category: 'Finance',
   status: 'Active',
   priority: 'P1',
   phase: 'Incubation',
-  launch_date: 'AY 2022',
+  batch: 'AY 2022',
+  id: '1',
+  email: '',
+  linkedin: '',
+  facebook: '',
+  pitchdeck: ''
 };
 
 export default function StartupCard({
   name,
   short_description,
   long_description,
-  logo,
-  field,
+  avatar,
+  category,
   status,
   priority,
   phase,
-  launch_date,
+  batch,
 }: StartupCardProps) {
   return (
     <a href="./startupinfo" className="block w-full">
       <button className="flex w-full gap-4 rounded-2xl border border-slate-400 bg-white p-2 hover:bg-gray-50 transition-colors duration-200 md:flex-row md:items-center md:p-4">
       <Image
-        src={logo}
+        src={avatar}
         width={100}
         height={100}
         className="max-md:mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
@@ -60,9 +69,9 @@ export default function StartupCard({
           {long_description}
         </p>
         <div className="flex flex-wrap justify-start gap-2">
-          <Badge type="category" value={field} />
+          <Badge type="category" value={category} />
           <Badge type="phase" value={phase} />
-          <Badge type="launch_date" value={launch_date} />
+          <Badge type="launch_date" value={batch} />
           <Badge type="priority" value={priority} />
           <Badge type="status" value={status} />
         </div>
