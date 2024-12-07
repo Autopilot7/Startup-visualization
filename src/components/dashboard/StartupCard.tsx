@@ -40,14 +40,14 @@ export default function StartupCard({
   launch_date,
 }: StartupCardProps) {
   return (
-    <div className="flex w-auto gap-4 rounded-2xl border border-slate-400 bg-white p-2 md:flex-row md:items-center md:p-4">
+    <a href="./startupinfo" className="block w-full">
+      <button className="flex w-full gap-4 rounded-2xl border border-slate-400 bg-white p-2 hover:bg-gray-50 transition-colors duration-200 md:flex-row md:items-center md:p-4">
       <Image
         src={logo}
         width={100}
         height={100}
         className="max-md:mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
-        alt={`${name} Logo`}
-      />
+        alt={`${name} Logo`} />
       <div className="space-y-2 text-left max-md:space-y-2">
         <div className="flex md:flex-row">
           <div className="flex flex-wrap items-center space-x-3">
@@ -67,6 +67,7 @@ export default function StartupCard({
           <Badge type="status" value={status} />
         </div>
       </div>
-    </div>
+    </button>
+    </a>
   );
 }
