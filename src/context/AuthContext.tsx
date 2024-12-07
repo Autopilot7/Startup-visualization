@@ -32,6 +32,7 @@ interface DecodedToken {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // Function to check token expiration and set a timeout for automatic logout
@@ -69,16 +70,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize authentication state from localStorage
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setAccessToken(token);
-      scheduleTokenExpiration(token);
-    }
+    const checkAuthToken = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          setAccessToken(token);
+          scheduleTokenExpiration(token);
+        }
+      } catch (error) {
+        console.error('Error fetching access token:', error);
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuthToken();
   }, []);
 
   // Axios interceptor to add Authorization header and handle 401 responses
   useEffect(() => {
-    // Request interceptor to add access token to headers
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         if (accessToken) {
@@ -89,7 +100,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor to handle 401 errors
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -108,6 +118,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [accessToken]);
 
   const isAuthenticated = !!accessToken;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, accessToken, login, logout }}>
