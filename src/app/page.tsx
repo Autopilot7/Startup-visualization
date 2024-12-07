@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Plus, Download } from "lucide-react"
 import Link from "next/link"
-import StartupTable, { dummyStartupTableProps } from "@/components/dashboard/StartupTable"
+import StartupTable, { dummyStartupTableProps, fetchStartups } from "@/components/dashboard/StartupTable"
 import Title from "@/components/Title"
 import { AuthContext } from "@/context/AuthContext"
 
@@ -70,7 +70,7 @@ export default function Dashboard() {
           </DropdownMenu>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <StartupTable startups={dummyStartupTableProps.startups} />
+          <StartupTable startups={[]} />
         </Suspense>
         </main>
       </div>
