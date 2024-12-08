@@ -2,9 +2,9 @@
 import StartupCard, { StartupCardProps } from '@/components/dashboard/StartupCard';
 import React from 'react';
 
-export type StartupTableProps = {
+export interface StartupTableProps {
   startups: StartupCardProps[];
-};
+}
 
 export default function StartupTable({ startups }: StartupTableProps) {
   return (

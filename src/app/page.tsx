@@ -16,7 +16,7 @@ import Title from "@/components/Title";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups } from "@/app/actions";
 
-export default function Dashboard({ startups }: StartupTableProps) {
+export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext);
   const [startupData, setStartupData] = useState<StartupTableProps['startups']>([]);
   const [loading, setLoading] = useState(true); // State for loading
