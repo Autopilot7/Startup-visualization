@@ -3,7 +3,7 @@
 import Badge from '@/components/dashboard/Badge';
 import Image from 'next/image';
 
-export type StartupCardProps = {
+export interface StartupCardProps {
   name: string;
   short_description: string;
   long_description: string;
