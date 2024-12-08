@@ -1,7 +1,7 @@
 export const filterCategories = [
     {
         name: 'Priority',
-        options: ['All', 'P1', 'P2', 'P3']
+        options: ['All', 'P0', 'P1', 'P2']
     },
     {
         name: 'Status',
@@ -9,14 +9,14 @@ export const filterCategories = [
     },
     {
         name: "Phase",
-        options: ["All", "Ideation", "Incubation", "Acceleration"]
+        options: ["All", "Peer Mentor", "Incubation", "EIR Support"]
     },
     {
         name: 'Category',
-        options: ['All', 'Technology', "Travel", 'Healthcare', 'Finance', 'Education', 'Others']
+        options: ['All', 'Technology', "Travel", 'Healthcare', 'Finance', 'Education', 'Social Media','Others']
     },
     {
-        name: "Launch date",
-        options: ["All", "AY 2021", "AY 2022", "AY 2023", "AY 2024"]
+        name: "Batch",
+        options: ["All", "AY 22-23", "AY 23-24", "AY 24-25"]
     }
 ] 

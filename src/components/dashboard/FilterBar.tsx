@@ -10,14 +10,36 @@ import { GripVertical, SlidersHorizontal } from "lucide-react"
 import { filterCategories } from '@/lib/filters'
 
 export default function FilterBar() {
-  const [selectedFilters, setSelectedFilters] = React.useState<Record<string, string[]>>({})
+  const [selectedFilters, setSelectedFilters] = React.useState<Record<string, string[]>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedFilters')
+      return saved ? JSON.parse(saved) : {}
+    }
+    return {}
+  })
   const [width, setWidth] = React.useState(300)
   const [isResizing, setIsResizing] = React.useState(false)
   const [isVisible, setIsVisible] = React.useState(true)
   const [isSmallScreen, setIsSmallScreen] = React.useState(false)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const filterBarRef = React.useRef<HTMLDivElement>(null)
-  const [openItems, setOpenItems] = React.useState<string[]>([])
+  const [openItems, setOpenItems] = React.useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedOpenItems = localStorage.getItem('openItems')
+      return savedOpenItems ? JSON.parse(savedOpenItems) : []
+    }
+    return []
+  })
+
+  React.useEffect(() => {
+    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters))
+  }, [selectedFilters])
+
+  React.useEffect(() => {
+    localStorage.setItem('openItems', JSON.stringify(openItems))
+  }, [openItems])
+
+  console.log(selectedFilters)
 
   const handleCheckboxChange = (category: string, option: string) => {
     setSelectedFilters(prev => {

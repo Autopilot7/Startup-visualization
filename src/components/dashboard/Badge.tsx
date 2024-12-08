@@ -2,9 +2,9 @@
 type ColorKey = keyof typeof text_to_color;
 
 const text_to_color = {
-    "p1": "bg-red-700",
-    "p2": "bg-blue-700",
-    "p3": "bg-green-700",
+    "p0": "bg-red-700",
+    "p1": "bg-blue-700",
+    "p2": "bg-green-700",
     "inactive": "bg-slate-500",
     "active": "bg-green-500"
 }

@@ -79,7 +79,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Error fetching access token:', error);
-        logout();
+        setAccessToken(null);
+        localStorage.removeItem('accessToken');
+        toast.error('Authentication failed. Please log in again.');
+        router.push('/login');
       } finally {
         setLoading(false);
       }
