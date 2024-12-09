@@ -9,7 +9,12 @@ import { Label } from "@/components/ui/label"
 import { GripVertical, SlidersHorizontal } from "lucide-react"
 import { filterCategories } from '@/lib/filters'
 
-export default function FilterBar() {
+// Add prop type for onFilterChange
+interface FilterBarProps {
+  onFilterChange?: (filters: Record<string, string[]>) => void;
+}
+
+export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const [selectedFilters, setSelectedFilters] = React.useState<Record<string, string[]>>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('selectedFilters')
@@ -114,11 +119,67 @@ export default function FilterBar() {
     return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
 
+  const resetFilters = () => {
+    // Clear localStorage
+    localStorage.removeItem('selectedFilters');
+    localStorage.removeItem('openItems');
+    
+    // Clear selected filters state
+    setSelectedFilters({});
+  
+    // Reset accordion open state
+    setOpenItems([]);
+    
+    // Notify parent component
+    if (onFilterChange) {
+      onFilterChange({});
+    }
+    
+    // Trigger filter reset event
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('applyFilters', { 
+        detail: '' 
+      });
+      window.dispatchEvent(event);
+    }
+
+    // Close mobile dialog if open
+    if (isSmallScreen) {
+      setIsDialogOpen(false);
+    }
+  };
+
   const handleApplyFilters = () => {
-    console.log('Applied filters:', selectedFilters)
+    // Create query parameters from selected filters
+    const queryParams = new URLSearchParams();
+    
+    Object.entries(selectedFilters).forEach(([category, values]) => {
+      // Skip if "All" is selected or no values
+      if (!values.includes('All') && values.length > 0) {
+        // Convert category name to lowercase for API
+        const paramName = category.toLowerCase();
+        // Join multiple values with commas
+        queryParams.append(paramName+"_names", values.join(','));
+      }
+    });
+
+    // Get the query string
+    const filterString = queryParams.toString();
+    
+    // Call the fetchStartupWithFilters function from the parent component
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('applyFilters', { 
+        detail: filterString 
+      });
+      window.dispatchEvent(event);
+    }
+
+    if (onFilterChange) {
+      onFilterChange(selectedFilters);
+    }
 
     if (isSmallScreen) {
-      setIsDialogOpen(false)
+      setIsDialogOpen(false);
     }
   }
 
@@ -173,9 +234,16 @@ export default function FilterBar() {
                 })}
               </Accordion>
             </div>
-            <div className="p-4">
+            <div className="p-4 space-y-2">
               <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
                 Apply
+              </Button>
+              <Button 
+                onClick={resetFilters} 
+                variant="outline" 
+                className="w-full"
+              >
+                Reset Filters
               </Button>
             </div>
           </div>
@@ -235,9 +303,16 @@ export default function FilterBar() {
                   })}
                 </Accordion>
               </div>
-              <div className="p-4">
+              <div className="p-4 space-y-2">
                 <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
                   Apply
+                </Button>
+                <Button 
+                  onClick={resetFilters} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Reset Filters
                 </Button>
               </div>
             </div>
