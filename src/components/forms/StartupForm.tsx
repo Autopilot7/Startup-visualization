@@ -9,8 +9,17 @@ import { Button } from "../ui/button";
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Modal from "../Modal"; // Assuming you have a Modal component
+import CreateMemberForm from '@/app/create-member/page';
+import { useEffect } from "react";
+import axios from 'axios';
+import { endpoints } from '@/app/utils/apis';
+import Select from "react-select"; 
 
-
+interface Member {
+  id: string;
+  name: string;
+  role: string;
+}
 
 const schema = z.object({
   startupName: z.string(),
@@ -24,16 +33,72 @@ const schema = z.object({
   phone: z.string(),
   email: z.string().email({ message: "Invalid email address!" }),
   description: z.string(),
+  shortdescription: z.string(),
   priority: z.enum(["P1", "P2", "P3"], { message: "Priority is required" }),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
   location: z.string(), // Added location field
   revenue: z.string(),  // Added revenue field
+  facebookUrl: z.string().url({ message: "Invalid Facebook URL" }).optional(),
+  linkedinUrl: z.string().url({ message: "Invalid LinkedIn URL" }).optional(),
 });
 
 type Inputs = z.infer<typeof schema>;
 
 const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) => {
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
+  // Initialize from localStorage
+  const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedMemberOptions, setSelectedMemberOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [members, setMembers] = useState<Array<{ id: string; name: string; role: string }>>([]);
+  const [mounted, setMounted] = useState(false);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [pitchdeckFileName, setPitchdeckFileName] = useState<string | null>(null);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal for Back functionality
+  const [modalContent, setModalContent] = useState(''); // Declare modalContent state
+
+
+  // Update localStorage whenever members change
+  // Load members from localStorage on mount
+  useEffect(() => {
+    const storedMembers = localStorage.getItem('members');
+    if (storedMembers) {
+      try {
+        const parsedMembers: Array<Member> = JSON.parse(storedMembers);
+        // Validate that each member has an id
+        const validMembers = parsedMembers.filter(member => member.id && member.name);
+        setMembers(validMembers);
+      } catch (error) {
+        console.error('Error parsing stored members:', error);
+        localStorage.removeItem('members'); // Clear invalid data
+      }
+    }
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const storedMembers = localStorage.getItem('members');
+    if (storedMembers) {
+      try {
+        const parsedMembers = JSON.parse(storedMembers);
+        setMembers(parsedMembers);
+      } catch (error) {
+        console.error('Error parsing stored members:', error);
+        localStorage.removeItem('members'); // Clear invalid data
+      }
+    }
+    setMounted(true);
+  }, []);
+
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log(data);
+    toast.success('Startup saved successfully!');
+    // Handle form submission
+  };
   const {
     register,
     handleSubmit,
@@ -41,18 +106,35 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
-
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [pitchdeckFileName, setPitchdeckFileName] = useState<string | null>(null);
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [members, setMembers] = useState<string[]>([]); // Danh sách member đã được thêm
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal for Back functionality
-  const [modalContent, setModalContent] = useState(''); // Declare modalContent state
-
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    toast.success('Startup saved successfully!');
-  });
+  
+  useEffect(() => {
+    const fetchCategoriesAndMembers = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+  
+        // Fetch categories
+        const categoriesResponse = await axios.get(endpoints.categories, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setCategories(categoriesResponse.data);
+  
+        // Fetch members
+        const membersResponse = await axios.get(endpoints.members, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setAvailableMembers(membersResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load categories or members");
+      }
+    };
+  
+    fetchCategoriesAndMembers();
+  }, []);
 
   const handleBackClick = () => {
     setModalContent('Are you sure you want to go back without saving?');
@@ -69,7 +151,30 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     // Perform the discard action or any other functionality
   };
 
-
+  const handleAddMember = (member: { id: string; name: string }) => {
+    setMembers((prevMembers) => [
+      ...prevMembers,
+      { id: member.id, name: member.name, role: '' },
+    ]);
+  };
+  
+  // Pass handleAddMember to CreateMemberForm
+  <CreateMemberForm
+    onClose={() => setIsMemberModalOpen(false)}
+    onAddMember={handleAddMember} // Ensure this prop is passed
+  />
+  // Handler to update member's role
+  const handleRoleChange = (memberId: string, role: string) => {
+    setMembers((prevMembers) =>
+      prevMembers.map((member) =>
+        member.id === memberId ? { ...member, role } : member
+      )
+    );
+  };
+  if (!mounted) {
+    // Avoid rendering differences during hydration
+    return null;
+  }
   return (
     <div className="max-w-7xl mx-auto p-8">
       <form
@@ -86,29 +191,83 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             register={register}
             error={errors?.startupName}
           />
-          {/* Nút tạo member */}
+          {/* Ô nhập Description với textarea */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Short description</label>
+            <textarea
+                {...register("shortdescription")}
+                defaultValue={data?.shortdescription || ""}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-32"
+                placeholder="Enter a short description..."
+            ></textarea>
+            {errors.description && (
+                <p className="text-xs text-red-500 mt-1">
+                {errors.description.message?.toString()}
+                </p>
+            )}
+            </div>
+            {/*list add member*/}
+            <div className="my-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Add Existing Members
+            </label>
+            <Select
+              options={availableMembers.map((member) => ({
+                value: member.id,
+                label: member.name,
+              }))}
+              isMulti
+              value={selectedMemberOptions}
+              onChange={(newSelectedOptions) => {
+                setSelectedMemberOptions(newSelectedOptions as { value: string; label: string }[] || []);
+                const selectedMembers = newSelectedOptions?.map((option) => ({
+                  id: option.value,
+                  name: option.label,
+                  role: "",
+                })) || [];
+
+                setMembers((prevMembers) => {
+                  const newMembers = selectedMembers.filter(
+                    (newMember) => !prevMembers.some((member) => member.id === newMember.id)
+                  );
+                  return [...prevMembers, ...newMembers];
+                });
+              }}
+              className="mt-1"
+              placeholder="Select members..."
+            />
+          </div>
+          {/* Members Section */}
           <div>
             <h2 className="text-lg font-semibold mb-2">Members</h2>
-            <Link href="/create-member">
-              <button
-                type="button"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Create Member
-              </button>
-            </Link>
-            {/* Danh sách member đã được thêm */}
-            <ul className="mt-4">
-              {members.length > 0 ? (
-                members.map((member, index) => (
-                  <li key={index} className="p-2 border rounded-md mb-2">
-                    {member}
-                  </li>
-                ))
-              ) : (
+            <button
+              type="button"
+              onClick={() => setIsMemberModalOpen(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+            >
+              Create Member
+            </button>
+            
+            <div className="mt-6">
+              {members.length === 0 ? (
                 <p className="text-gray-500">No members added yet.</p>
+              ) : (
+                <ul className="space-y-4">
+                  {members.map((member) => (
+                    <li key={member.id} className="flex items-center space-x-4">
+                      <span className="font-medium">{member.name}</span>
+                      <input
+                        type="text"
+                        placeholder="Enter role"
+                        value={member.role}
+                        onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                        className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </li>
+                  ))}
+                </ul>
               )}
-            </ul>
+</div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
@@ -175,13 +334,19 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               defaultValue={data?.category || ""}
               onChange={(e) => setIsCustomCategory(e.target.value === "Others")}
             >
-              <option value="">Category*</option>
-              <option value="Technology">Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Finance">Finance</option>
-              <option value="Education">Education</option>
+              <option value="">Select Category*</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
               <option value="Others">Others</option>
             </select>
+            {errors.category && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.category.message?.toString()}
+              </p>
+            )}
             {isCustomCategory && (
               <InputField
                 label="Custom Category"
@@ -191,7 +356,30 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               />
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="lg:col-span-3">
+          <h2 className="text-lg font-semibold mb-4">Social Media</h2>
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <InputField
+                label="Facebook URL"
+                name="facebookUrl"
+                register={register}
+                error={errors.facebookUrl}
+              />
+            </div>
+            <div className="flex-1">
+              <InputField
+                label="LinkedIn URL"
+                name="linkedinUrl"
+                register={register}
+                error={errors.linkedinUrl}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-3">
+        <h2 className="text-lg font-semibold mb-4">Contact</h2>
+        <div className="flex flex-col lg:flex-row gap-4">
             <InputField
               label="Phone"
               name="phone"
@@ -206,6 +394,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               register={register}
               error={errors.email}
             />
+          </div>
           </div>
           {/* Ô nhập Description với textarea */}
             <div>
@@ -337,8 +526,17 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           </Button>
         </div>
       </Modal>
+      <Modal
+      isOpen={isMemberModalOpen}
+      onClose={() => setIsMemberModalOpen(false)}
+      title="Create Member"
+      maxWidth="max-w-4xl" // Increase the max-width
+    >
+      <CreateMemberForm onClose={() => setIsMemberModalOpen(false)} onAddMember={handleAddMember} />
+    </Modal>
     </div>
   );
 };
 
 export default StartupForm;
+
