@@ -36,6 +36,7 @@ export async function fetchStartupWithFilters(filters: any): Promise<StartupTabl
             `https://startupilot.cloud.strixthekiet.me/api/startups/?${filters}`
         );
         const data = await response.json();
+        console.log("Filters: ", filters);
         
         const startups = data.results.map((item: any) => ({
             id: item.id || '',
