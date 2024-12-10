@@ -6,7 +6,8 @@ export const endpoints = {
   categories: `${BACKEND_URL}/api/categories/`,
   members: `${BACKEND_URL}/api/members/`,
   createmembers: `${BACKEND_URL}/api/members/create`,
-  uploadavatar: `${BACKEND_URL}/api/file/upload`
-  
-  // Add other endpoints as needed
+  uploadavatar: `${BACKEND_URL}/api/file/upload`,
+  advisors: `${BACKEND_URL}/api/advisors/`,
+  createadvisors: `${BACKEND_URL}/api/advisors/create`,
+  createStartup: `${BACKEND_URL}/api/startups/create`,
 };

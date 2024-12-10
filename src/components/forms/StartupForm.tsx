@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import Modal from "../Modal"; // Assuming you have a Modal component
 import CreateMemberForm from '@/app/create-member/page';
+import CreateAdvisorForm from '@/app/create-advisor/page';
 import { useEffect } from "react";
 import axios from 'axios';
 import { endpoints } from '@/app/utils/apis';
@@ -21,11 +22,24 @@ interface Member {
   role: string;
 }
 
+interface Advisor {
+  id: string;
+  name: string;
+  areaOfExpertise: string;
+}
+
 const schema = z.object({
   startupName: z.string(),
   phase: z.enum(["Ideation", "Incubation", "Acceleration"], {
     message: "Phase is required!",
   }),
+    advisors: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        areaOfExpertise: z.string().optional(),
+      })
+    ).optional(),
   status: z.enum(["Active", "Inactive"], { message: "Status is required!" }),
   batch: z.string(),
   category: z.string(),
@@ -59,7 +73,10 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal for Back functionality
   const [modalContent, setModalContent] = useState(''); // Declare modalContent state
-
+  const [advisors, setAdvisors] = useState<Advisor[]>([]);
+  const [availableAdvisors, setAvailableAdvisors] = useState<Advisor[]>([]);
+  const [selectedAdvisorOptions, setSelectedAdvisorOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [isAdvisorModalOpen, setIsAdvisorModalOpen] = useState(false);
 
   // Update localStorage whenever members change
   // Load members from localStorage on mount
@@ -77,6 +94,30 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
       }
     }
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fetchAdvisors = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+  
+        const response = await axios.get(endpoints.advisors, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        setAvailableAdvisors(response.data);
+      } catch (error) {
+        console.error("Error fetching advisors:", error);
+        toast.error("Failed to load advisors");
+      }
+    };
+  
+    fetchAdvisors();
   }, []);
 
   useEffect(() => {
@@ -171,6 +212,32 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
       )
     );
   };
+
+    // Inside the StartupForm component
+
+  const handleAddAdvisor = (advisor: { id: string; name: string }) => {
+    setAdvisors((prevAdvisors) => [
+      ...prevAdvisors,
+      {
+        id: advisor.id,
+        name: advisor.name,
+        areaOfExpertise: '',
+      },
+    ]);
+  };
+
+  <Modal
+    isOpen={isAdvisorModalOpen}
+    onClose={() => setIsAdvisorModalOpen(false)}
+    title="Create Advisor"
+    maxWidth="max-w-4xl" // Adjust as needed
+  >
+    <CreateAdvisorForm
+      onClose={() => setIsAdvisorModalOpen(false)}
+      onAddAdvisor={handleAddAdvisor}
+    />
+  </Modal>
+
   if (!mounted) {
     // Avoid rendering differences during hydration
     return null;
@@ -396,6 +463,73 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             />
           </div>
           </div>
+
+      {/* Advisors Section */}
+      <div>
+        <h2 className="text-lg font-semibold mb-2">Advisors</h2>
+        <button
+          type="button"
+          onClick={() => setIsAdvisorModalOpen(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Create Advisor
+        </button>
+
+        {/* Advisor Selection */}
+        <div className="my-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Add Existing Advisors
+          </label>
+          <Select
+            options={availableAdvisors.map((advisor) => ({
+              value: advisor.id,
+              label: advisor.name,
+            }))}
+            isMulti
+            value={selectedAdvisorOptions}
+            onChange={(newSelectedOptions) => {
+              setSelectedAdvisorOptions(newSelectedOptions || []);
+              // Update advisors state with selected advisors
+              const selectedAdvisors = newSelectedOptions?.map((option) => ({
+                id: option.value,
+                name: option.label,
+                areaOfExpertise: "",
+              })) || [];
+
+              setAdvisors((prevAdvisors) => {
+                const newAdvisors = selectedAdvisors.filter(
+                  (newAdvisor) => !prevAdvisors.some((advisor) => advisor.id === newAdvisor.id)
+                );
+                return [...prevAdvisors, ...newAdvisors];
+              });
+            }}
+            className="mt-1"
+            placeholder="Select advisors..."
+          />
+        </div>
+
+        {/* Display Selected Advisors */}
+        <div className="mt-6">
+          {advisors.length === 0 ? (
+            <p className="text-gray-500">No advisors added yet.</p>
+          ) : (
+            <ul className="space-y-4">
+              {advisors.map((advisor) => (
+                <li key={advisor.id} className="flex items-center space-x-4">
+                  <span className="font-medium">{advisor.name}</span>
+                  <input
+                    type="text"
+                    placeholder="Area of Expertise"
+                    value={advisor.areaOfExpertise}
+                    onChange={(e) => handleAdvisorExpertiseChange(advisor.id, e.target.value)}
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
           {/* Ô nhập Description với textarea */}
             <div>
             <label className="block text-sm font-medium text-gray-700">Description</label>
