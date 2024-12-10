@@ -17,12 +17,21 @@ const schema = z.object({
   facebook: z.string().url("Invalid Facebook URL").optional(),
   areaOfExpertise: z.string().optional(),
   photo: z
-    .any()
-    .refine((file) => file && file.length === 1, { message: "Photo is required" })
-    .refine(
-      (file) => ["image/jpeg", "image/png", "image/gif"].includes(file[0]?.type),
-      { message: "Only JPEG, PNG, and GIF files are allowed" }
-    ),
+  .any()
+  .optional()
+  .refine((file) => {
+    // If no file is provided, it's valid since it's optional
+    if (!file || file.length === 0) return true;
+    // If a file is provided, ensure only one file is uploaded
+    return file.length === 1;
+  }, { message: "Only one photo can be uploaded." })
+  .refine((file) => {
+    // If no file is provided, skip the type check
+    if (!file || file.length === 0) return true;
+    // Validate the file type
+    return ["image/jpeg", "image/png", "image/gif"].includes(file[0]?.type);
+  }, { message: "Only JPEG, PNG, and GIF files are allowed." }),
+
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -181,8 +190,10 @@ const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
           className="mt-1"
         />
         {errors.photo && (
-          <p className="text-xs text-red-500 mt-1">{errors.photo.message}</p>
-        )}
+        <p className="text-xs text-red-500 mt-1">
+          {errors.photo.message?.toString()}
+        </p>
+)}
       </div>
 
       {/* Submit Button */}

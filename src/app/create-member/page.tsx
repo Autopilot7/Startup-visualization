@@ -17,12 +17,19 @@ const schema = z.object({
   facebook: z.string().url("Invalid Facebook URL").optional(),
   photo: z
     .any()
-    .refine((file) => file && file.length === 1, { message: "Photo is required" })
-    .refine(
-      (file) => ["image/jpeg", "image/png", "image/gif"].includes(file[0]?.type),
-      { message: "Only JPEG, PNG, and GIF files are allowed" }
-    ),
-  status: z.enum(["active", "inactive"], { message: "Status is required!" }),
+    .optional()
+    .refine((file) => {
+      // If no file is provided, it's valid since it's optional
+      if (!file || file.length === 0) return true;
+      // If a file is provided, ensure only one file is uploaded
+      return file.length === 1;
+    }, { message: "Only one photo can be uploaded." })
+    .refine((file) => {
+      // If no file is provided, skip the type check
+      if (!file || file.length === 0) return true;
+      // Validate the file type
+      return ["image/jpeg", "image/png", "image/gif"].includes(file[0]?.type);
+    }, { message: "Only JPEG, PNG, and GIF files are allowed." }),
   description: z.string().optional(),
 });
 
@@ -89,8 +96,6 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
         phone: data.phone,
         email: data.email,
         avatar_url: avatarUrl,
-        status: data.status,
-        description: data.description,
       };
       
       if (data.linkedin) memberData.linkedin_url = data.linkedin;
@@ -106,6 +111,21 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
       // After successful creation
       onAddMember({ id: memberResponse.data.id, name: memberResponse.data.name });
       toast.success("Member created successfully!");
+      if (data.description) {
+        const noteData = {
+          content: data.description,
+          content_type: "member",
+          object_id: memberResponse.data.id,
+        };
+      
+        await axios.post(endpoints.createnotes, noteData, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+      
       reset();
       setPhotoPreview(null);
       onClose();
@@ -169,22 +189,7 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
         register={register}
         error={errors?.description}
       />
-      {/* Trạng thái */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Status</label>
-        <select
-          {...register("status")}
-          className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        {errors.status && (
-          <p className="text-xs text-red-500 mt-1">
-            {errors.status.message?.toString()}
-          </p>
-        )}
-      </div>
+      
     </div>
   
     {/* Bên phải: Upload Avatar */}
@@ -212,7 +217,9 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
         className="mt-1"
       />
       {errors.photo && (
-        <p className="text-xs text-red-500 mt-1">{errors.photo.message}</p>
+        <p className="text-xs text-red-500 mt-1">
+          {errors.photo.message?.toString()}
+        </p>
       )}
     </div>
   

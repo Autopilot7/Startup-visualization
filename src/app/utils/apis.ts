@@ -10,4 +10,5 @@ export const endpoints = {
   advisors: `${BACKEND_URL}/api/advisors/`,
   createadvisors: `${BACKEND_URL}/api/advisors/create`,
   createStartup: `${BACKEND_URL}/api/startups/create`,
+  createnotes: `${BACKEND_URL}/api/notes/create`,
 };

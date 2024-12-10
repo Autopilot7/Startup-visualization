@@ -478,7 +478,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             isMulti
             value={selectedAdvisorOptions}
             onChange={(newSelectedOptions) => {
-              setSelectedAdvisorOptions(newSelectedOptions || []);
+              setSelectedAdvisorOptions(newSelectedOptions ? [...newSelectedOptions] : []);
               // Update advisors state with selected advisors
               const selectedAdvisors = newSelectedOptions?.map((option) => ({
                 id: option.value,
@@ -507,13 +507,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               {advisors.map((advisor) => (
                 <li key={advisor.id} className="flex items-center space-x-4">
                   <span className="font-medium">{advisor.name}</span>
-                  <input
-                    type="text"
-                    placeholder="Area of Expertise"
-                    value={advisor.areaOfExpertise}
-                    onChange={(e) => handleAdvisorExpertiseChange(advisor.id, e.target.value)}
-                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <span className="text-gray-700">{advisor.areaOfExpertise}</span>
                 </li>
               ))}
             </ul>
