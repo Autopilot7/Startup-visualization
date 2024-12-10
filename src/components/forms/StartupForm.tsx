@@ -99,7 +99,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   useEffect(() => {
     const fetchAdvisors = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
         if (!token) {
           throw new Error("No authentication token found");
         }
@@ -226,17 +226,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     ]);
   };
 
-  <Modal
-    isOpen={isAdvisorModalOpen}
-    onClose={() => setIsAdvisorModalOpen(false)}
-    title="Create Advisor"
-    maxWidth="max-w-4xl" // Adjust as needed
-  >
-    <CreateAdvisorForm
-      onClose={() => setIsAdvisorModalOpen(false)}
-      onAddAdvisor={handleAddAdvisor}
-    />
-  </Modal>
+ 
 
   if (!mounted) {
     // Avoid rendering differences during hydration
@@ -668,6 +658,17 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     >
       <CreateMemberForm onClose={() => setIsMemberModalOpen(false)} onAddMember={handleAddMember} />
     </Modal>
+    <Modal
+    isOpen={isAdvisorModalOpen}
+    onClose={() => setIsAdvisorModalOpen(false)}
+    title="Create Advisor"
+    maxWidth="max-w-4xl" // Adjust as needed
+  >
+    <CreateAdvisorForm
+      onClose={() => setIsAdvisorModalOpen(false)}
+      onAddAdvisor={handleAddAdvisor}
+    />
+  </Modal>
     </div>
   );
 };

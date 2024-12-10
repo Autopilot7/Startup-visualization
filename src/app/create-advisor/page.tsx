@@ -49,7 +49,7 @@ const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       if (!token) {
         toast.error("No authentication token found. Please login.");
         return;
