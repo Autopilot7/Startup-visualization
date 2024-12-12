@@ -1,7 +1,9 @@
 // components/StartupCard.tsx
 'use client';
+
 import Badge from '@/components/dashboard/Badge';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export interface StartupCardProps {
   name: string;
@@ -20,23 +22,6 @@ export interface StartupCardProps {
   email: string;
 };
 
-export const dummyStartupCardProps: StartupCardProps = {
-  name: 'Finful',
-  short_description: 'Financial Version Of Duolingo',
-  long_description: 'A gamified app that teaches personal finance and investing through interactive lessons and quizzes, making financial literacy fun, engaging, and easy to learn.',
-  avatar: 'https://static.ybox.vn/2023/5/3/1683723223801-336640751_761918645261000_7516888285445287067_n.jpg',
-  category: 'Finance',
-  status: 'Active',
-  priority: 'P1',
-  phase: 'Incubation',
-  batch: 'AY 22-23',
-  id: '1',
-  email: '',
-  linkedin: '',
-  facebook: '',
-  pitchdeck: ''
-};
-
 export default function StartupCard({
   name,
   short_description,
@@ -47,16 +32,18 @@ export default function StartupCard({
   priority,
   phase,
   batch,
+  id,
 }: StartupCardProps) {
   return (
-    <a href="./startupinfo" className="block w-full">
+    <Link href={`/startupinfo/${id}`} className="block w-full">
       <button className="flex w-full h-[120px] sm:h-[160px] md:h-[180px] gap-4 rounded-2xl border border-slate-400 bg-white p-2 hover:bg-gray-100 transition-colors duration-200 md:flex-row items-center md:p-4 overflow-hidden">
         <Image
           src={avatar}
           width={100}
           height={100}
           className="flex-shrink-0 max-md:mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
-          alt={`${name} Logo`} />
+          alt={`${name} Logo`} 
+        />
         <div className="space-y-2 text-left max-md:space-y-2 min-w-0 flex-1">
           <div className="flex md:flex-row overflow-hidden">
             <div className="flex items-center space-x-3 overflow-hidden">
@@ -81,6 +68,6 @@ export default function StartupCard({
           </div>
         </div>
       </button>
-    </a>
+    </Link>
   );
 }
