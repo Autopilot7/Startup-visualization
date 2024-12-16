@@ -95,12 +95,12 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
         name: data.name,
         phone: data.phone,
         email: data.email,
-        avatar_url: avatarUrl,
+        avatar: avatarUrl,
       };
       
       if (data.linkedin) memberData.linkedin_url = data.linkedin;
       if (data.facebook) memberData.facebook_url = data.facebook;
-
+      console.log('Member data:', memberData);
       const memberResponse = await axios.post(endpoints.createmembers, memberData, {
         headers: {
           "Content-Type": "application/json",

@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
 import InputField from "../InputField";
@@ -15,11 +14,15 @@ import { useEffect } from "react";
 import axios from 'axios';
 import { endpoints } from '@/app/utils/apis';
 import Select from "react-select"; 
+import { useForm, Controller } from "react-hook-form";
+import Control from "node_modules/react-select/dist/declarations/src/components/Control";
+
 
 interface Member {
   id: string;
   name: string;
   role: string;
+  active: boolean;
 }
 
 interface Advisor {
@@ -30,25 +33,21 @@ interface Advisor {
 
 const schema = z.object({
   startupName: z.string(),
-  phase: z.enum(["Ideation", "Incubation", "Acceleration"], {
-    message: "Phase is required!",
-  }),
     advisors: z.array(
       z.object({
         id: z.string(),
-        name: z.string(),
-        areaOfExpertise: z.string().optional(),
       })
     ).optional(),
-  status: z.enum(["Active", "Inactive"], { message: "Status is required!" }),
-  batch: z.string(),
+  phases: z.array(z.string()).optional(), // Changed from single enum to array of IDs
+  status: z.string().optional(), // Changed from enum to single ID
+  priority: z.string().optional(), // Changed from enum to single ID
+  batch: z.string().optional(), // Changed from enum to single ID
   category: z.string(),
   customCategory: z.string().optional(),
   phone: z.string(),
   email: z.string().email({ message: "Invalid email address!" }),
   description: z.string(),
   shortdescription: z.string(),
-  priority: z.enum(["P1", "P2", "P3"], { message: "Priority is required" }),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
   location: z.string(), // Added location field
@@ -65,7 +64,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   // Initialize from localStorage
   const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedMemberOptions, setSelectedMemberOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [members, setMembers] = useState<Array<{ id: string; name: string; role: string }>>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [mounted, setMounted] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -77,7 +76,10 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const [availableAdvisors, setAvailableAdvisors] = useState<Advisor[]>([]);
   const [selectedAdvisorOptions, setSelectedAdvisorOptions] = useState<Array<{ value: string; label: string }>>([]);
   const [isAdvisorModalOpen, setIsAdvisorModalOpen] = useState(false);
-
+  const [phases, setPhases] = useState<Array<{ id: string; name: string }>>([]);
+  const [statuses, setStatuses] = useState<Array<{ id: string; name: string }>>([]);
+  const [priorities, setPriorities] = useState<Array<{ id: string; name: string }>>([]);
+  const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
   // Update localStorage whenever members change
   // Load members from localStorage on mount
   useEffect(() => {
@@ -94,6 +96,34 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
       }
     }
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+
+        const [phasesResponse, statusesResponse, prioritiesResponse, batchesResponse] = await Promise.all([
+          axios.get(endpoints.phases, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(endpoints.statuses, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(endpoints.priorities, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(endpoints.batches, { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        setPhases(phasesResponse.data);
+        setStatuses(statusesResponse.data);
+        setPriorities(prioritiesResponse.data);
+        setBatches(batchesResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load data");
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -134,16 +164,13 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     setMounted(true);
   }, []);
 
-  const onSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log(data);
-    toast.success('Startup saved successfully!');
-    // Handle form submission
-  };
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    control,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
@@ -195,7 +222,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const handleAddMember = (member: { id: string; name: string }) => {
     setMembers((prevMembers) => [
       ...prevMembers,
-      { id: member.id, name: member.name, role: '' },
+      { ...member, role: "", active: true },
     ]);
   };
   
@@ -213,6 +240,17 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     );
   };
 
+  const handleRemoveMember = (memberId: string) => {
+    setMembers((prevMembers) => prevMembers.filter((member) => member.id !== memberId));
+  };
+  const handleMemberStatusChange = (memberId: string, status: string) => {
+    setMembers((prevMembers) =>
+      prevMembers.map((member) =>
+        member.id === memberId ? { ...member, active: status === "active" } : member
+      )
+    );
+  };
+
     // Inside the StartupForm component
 
   const handleAddAdvisor = (advisor: { id: string; name: string }) => {
@@ -226,7 +264,123 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
     ]);
   };
 
- 
+  const onSubmit = handleSubmit(async (data) => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          toast.error("No authentication token found. Please log in.");
+          return;
+        }
+    
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+    
+        // **Upload Logo (Avatar)**
+        let logoUrl = "";
+        if (data.logo && data.logo.length > 0) {
+          const logoFile = data.logo[0];
+          const formData = new FormData();
+          formData.append("file", logoFile);
+          formData.append("type", "avatar");
+    
+          const uploadLogoResponse = await axios.post(
+            endpoints.uploadavatar,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+    
+          logoUrl = uploadLogoResponse.data.file_url;
+          if (!logoUrl) {
+            throw new Error("Failed to upload logo.");
+          }
+        }
+    
+        // **Upload Pitch Deck**
+        let pitchDeckUrl = "";
+        if (data.pitchdeck && data.pitchdeck.length > 0) {
+          const pitchDeckFile = data.pitchdeck[0];
+          const formData = new FormData();
+          formData.append("file", pitchDeckFile);
+          formData.append("type", "pitch_deck");
+    
+          const uploadPitchDeckResponse = await axios.post(
+            endpoints.uploadavatar,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+    
+          pitchDeckUrl = uploadPitchDeckResponse.data.file_url;
+          if (!pitchDeckUrl) {
+            throw new Error("Failed to upload pitch deck.");
+          }
+        }
+    
+        // **Prepare Startup Data**
+        const startupData = {
+          name: data.startupName,
+          short_description: data.shortdescription,
+          description: data.description,
+          contact_email: data.email,
+          linkedin_url: data.linkedinUrl || undefined,
+          facebook_url: data.facebookUrl || undefined,
+          pitch_deck: pitchDeckUrl || undefined,
+          avatar: logoUrl || undefined,
+          phases: data.phases || [],
+          category: data.category !== "custom" ? data.category : undefined,
+          custom_category_name:
+            data.category === "custom" ? data.customCategory : undefined,
+          status: data.status || undefined,
+          priority: data.priority || undefined,
+          batch: data.batch || undefined,
+          // **Memberships**
+          memberships: members.map((member) => ({
+            id: member.id,
+            role: member.role,
+            status: member.active,
+          })),
+          // **Mentorships**
+          mentorships: advisors.map((advisor) => advisor.id),
+        };
+    
+        console.log("Startup Data:", startupData);
+    
+        // **Submit Startup Data**
+        const createStartupResponse = await axios.post(
+          endpoints.createStartup,
+          startupData,
+          { headers }
+        );
+    
+        if (createStartupResponse.status === 201) {
+          toast.success("Startup created successfully!");
+          // Optionally, redirect or reset form here
+        } else {
+          throw new Error("Failed to create startup.");
+        }
+      } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+          console.error("Error creating startup:", error.response?.data);
+          toast.error(
+            error.response?.data?.message || "Failed to create startup."
+          );
+        } else {
+          console.error("Unexpected error:", error);
+          toast.error("An unexpected error occurred.");
+        }
+      }
+    });
 
   if (!mounted) {
     // Avoid rendering differences during hydration
@@ -281,6 +435,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
                   id: option.value,
                   name: option.label,
                   role: "",
+                  active: true,
                 })) || [];
 
                 setMembers((prevMembers) => {
@@ -311,20 +466,31 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               ) : (
                 <ul className="space-y-4">
                   {members.map((member) => (
-                    <li key={member.id} className="flex items-center space-x-4">
+                    <div key={member.id} className="flex items-center space-x-2">
                       <span className="font-medium">{member.name}</span>
                       <input
                         type="text"
-                        placeholder="Enter role"
+                        placeholder="Role"
                         value={member.role}
                         onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                        className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-2 border border-gray-300 rounded-md"
                       />
-                    </li>
+                      <select
+                        value={member.active ? "active" : "inactive"}
+                        onChange={(e) => handleMemberStatusChange(member.id, e.target.value)}
+                        className="p-2 border border-gray-300 rounded-md"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                      <button onClick={() => handleRemoveMember(member.id)} className="text-red-500">
+                        Remove
+                      </button>
+                    </div>
                   ))}
                 </ul>
               )}
-</div>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
@@ -342,48 +508,147 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               error={errors.revenue}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              {...register("phase")}
-              defaultValue={data?.phase || ""}
-            >
-              <option value="">Phase*</option>
-              <option value="Ideation">Ideation</option>
-              <option value="Incubation">Incubation</option>
-              <option value="Acceleration">Acceleration</option>
-            </select>
-            <select
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              {...register("status")}
-              defaultValue={data?.status || ""}
-            >
-              <option value="">Status*</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <select
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              {...register("priority")}
-              defaultValue={data?.priority || ""}
-            >
-              <option value="">Priority*</option>
-              <option value="P1">P1</option>
-              <option value="P2">P2</option>
-              <option value="P3">P3</option>
-            </select>
-            <select
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              {...register("batch")}
-              defaultValue={data?.batch || ""}
-            >
-              <option value="">Batch*</option>
-              <option value="AY 2021">AY 2021</option>
-              <option value="AY 2022">AY 2022</option>
-              <option value="AY 2023">AY 2023</option>
-              <option value="AY 2024">AY 2024</option>
-            </select>
+          {/* Relationships: Phases, Status, Priority, Batch */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Phases: Multi-Select */}
+              <Controller
+                name="phases"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Phases</label>
+                    <Select
+                      {...field}
+                      options={phases.map((phase) => ({
+                        value: phase.id,
+                        label: phase.name,
+                      }))}
+                      isMulti
+                      className="mt-1"
+                      placeholder="Select phases..."
+                      onChange={(selectedOptions) => {
+                        field.onChange(selectedOptions ? selectedOptions.map(option => option.value) : []);
+                      }}
+                      value={phases
+                        .filter(phase => field.value?.includes(phase.id))
+                        .map(phase => ({ value: phase.id, label: phase.name }))}
+                    />
+                    {errors.phases && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.phases.message?.toString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              
+              {/* Status: Single Select */}
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <Select
+                      {...field}
+                      options={statuses.map((status) => ({
+                        value: status.id,
+                        label: status.name,
+                      }))}
+                      isClearable
+                      className="mt-1"
+                      placeholder="Select status..."
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption ? selectedOption.value : "");
+                      }}
+                      value={
+                        statuses
+                          .filter(status => status.id === field.value)
+                          .map(status => ({ value: status.id, label: status.name }))[0] || null
+                      }
+                    />
+                    {errors.status && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.status.message?.toString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              
+              {/* Priority: Single Select */}
+              <Controller
+                name="priority"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Priority</label>
+                    <Select
+                      {...field}
+                      options={priorities.map((priority) => ({
+                        value: priority.id,
+                        label: priority.name,
+                      }))}
+                      isClearable
+                      className="mt-1"
+                      placeholder="Select priority..."
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption ? selectedOption.value : "");
+                      }}
+                      value={
+                        priorities
+                          .filter(priority => priority.id === field.value)
+                          .map(priority => ({ value: priority.id, label: priority.name }))[0] || null
+                      }
+                    />
+                    {errors.priority && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.priority.message?.toString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              
+              {/* Batch: Single Select */}
+              <Controller
+                name="batch"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Batch</label>
+                    <Select
+                      {...field}
+                      options={batches.map((batch) => ({
+                        value: batch.id,
+                        label: batch.name,
+                      }))}
+                      isClearable
+                      className="mt-1"
+                      placeholder="Select batch..."
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption ? selectedOption.value : "");
+                      }}
+                      value={
+                        batches
+                          .filter(batch => batch.id === field.value)
+                          .map(batch => ({ value: batch.id, label: batch.name }))[0] || null
+                      }
+                    />
+                    {errors.batch && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.batch.message?.toString()}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
           </div>
+
           <div className="grid grid-cols-1 gap-4">
             <select
               className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"

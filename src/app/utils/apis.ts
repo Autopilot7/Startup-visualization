@@ -11,4 +11,8 @@ export const endpoints = {
   createadvisors: `${BACKEND_URL}/api/advisors/create`,
   createStartup: `${BACKEND_URL}/api/startups/create`,
   createnotes: `${BACKEND_URL}/api/notes/create`,
+  phases: `${BACKEND_URL}/api/phases/`,
+  statuses: `${BACKEND_URL}/api/statuses/`,
+  priorities: `${BACKEND_URL}/api/priorities/`,
+  batches: `${BACKEND_URL}/api/batches/`,
 };
