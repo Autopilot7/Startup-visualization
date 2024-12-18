@@ -473,12 +473,12 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
                         placeholder="Role"
                         value={member.role}
                         onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md"
+                        className="p-2 border border-gray-300 rounded-md "
                       />
                       <select
                         value={member.active ? "active" : "inactive"}
                         onChange={(e) => handleMemberStatusChange(member.id, e.target.value)}
-                        className="p-2 border border-gray-300 rounded-md"
+                        className="p-2 border border-gray-300 rounded-md w-40"
                       >
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
