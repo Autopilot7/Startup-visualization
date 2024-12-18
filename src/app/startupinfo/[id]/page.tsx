@@ -15,7 +15,11 @@ export default async function StartupInfoPage({ params }: { params: { id: string
   }
 
   return (
-    <div className="center">
+    <div style={{
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '20px',
+    }}>
       <StartupInfo
         key={startup.id}
         name={startup.name}

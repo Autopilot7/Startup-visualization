@@ -32,15 +32,8 @@ export default function StartupInfo({
                         <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
                     </div>
                 </div>
-
-                <div className="mt-4 flex flex-col items-center gap-6 ml-auto mr-10">
-                    <a href={linkedin} target="_blank" rel="noopener noreferrer">
-                        <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
-                    </a>
-                    <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
-                    <FaInstagram size={44} className="text-pink-600 cursor-pointer" />
-                </div>
             </div>
+
 
             <div className="w-full flex justify-center my-4">
                 <div style={{width: '160rem', height: '2px', backgroundColor: '#DBDBDB'}}></div>
@@ -55,6 +48,14 @@ export default function StartupInfo({
                     <div className="w-[42.76px] h-[42.76px] rounded-full border bg-gray-300 -ml-2 flex justify-center items-center text-gray-600 font-semibold">
                         +2
                     </div>
+
+                <div className="flex tems-center gap-6 ml-auto mr-10">
+                    <a href={linkedin} target="_blank" rel="noopener noreferrer">
+                        <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
+                    </a>
+                    <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
+                    <FaInstagram size={44} className="text-pink-600 cursor-pointer" />
+                </div>
             </div>
 
             <div className="w-full flex justify-center my-4">
