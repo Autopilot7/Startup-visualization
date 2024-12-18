@@ -1,17 +1,54 @@
 "use client";
-import { StartupInfo } from "@/components/Startupinfo";
-import Title from "@/components/Title";  // Import Title component nếu cần thiết
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { ChevronDown } from "lucide-react";
-import FilterBar from "@/components/dashboard/FilterBar"
-
+import StartupInfo from "@/components/Startupinfo";
+import { useEffect, useState } from "react";
+import { fetchStartups } from "../actions";
+import { StartupTableProps } from "@/components/dashboard/StartupTable";
 
 export default function Startupinfo() {
+  const [startupData, setStartupData] = useState<StartupTableProps['startups']>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStartups = async () => {
+      try {
+        const data = await fetchStartups();
+        setStartupData(data.startups);
+      } catch (error) {
+        console.error("Error fetching startups:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    loadStartups();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="center">
         <div className=" flex flex-row justify-center">
-            <StartupInfo/> {/* Truyền type là "create" */}
+          {startupData.map((startup)=> (
+            <StartupInfo             
+              key={startup.id}
+              name={startup.name}
+              short_description={startup.short_description}
+              long_description={startup.long_description}
+              avatar={startup.avatar}
+              category={startup.category}
+              status={startup.status}
+              priority={startup.priority}
+              phase={startup.phase}
+              batch={startup.batch}
+              id={startup.id}
+              email={startup.email}
+              linkedin={startup.linkedin}
+              facebook={startup.facebook}
+              pitchdeck={startup.pitchdeck}           
+              />
+          ))}
         </div>
     </div>
   )

@@ -1,34 +1,39 @@
 'use client'
 import React from 'react';
 import { FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { StartupCardProps } from './dashboard/StartupCard';
 
-export const StartupInfo: React.FC = () => {
+export default function StartupInfo({
+    name,
+    long_description,
+    avatar,
+    status,
+    priority,
+    phase,
+    batch,
+    linkedin,
+}: StartupCardProps): React.JSX.Element {
     return (
         <div className="w-full h-full bg-white space-y">
             <div className='flex'>
                 <div>
                     <div className='flex flex-col gap-y-2' >
                         <div className="w-[70rem] bg-white rounded-2xl p-6 flex gap-x-8 mb-1">
-                            <img src="https://static.ybox.vn/2023/5/3/1683723223801-336640751_761918645261000_7516888285445287067_n.jpg"
+                            <img src={avatar}
                                 className="w-[7rem] rounded-full left-1"
                                 alt="" />
-                            <h1 className="text-5xl font-bold flex-1 self-center">Finful</h1>
+                            <h1 className="text-5xl font-bold flex-1 self-center">{name}</h1>
                         </div>
                     </div>
                     <div className="ml-4 flex items-center mb-4">
-                        <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">AY 2022-2023</span>
-                        <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">Incubator</span>
-                        <span className="bg-red-600 text-white text-sm mr-2 px-2.5 py-0.5 rounded">P1</span>
-                        <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">Active</span>
+                        <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{batch}</span>
+                        <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{phase}</span>
+                        <span className="bg-red-600 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{priority}</span>
+                        <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
                     </div>
                 </div>
-
-                <div className="mt-4 flex flex-col items-center gap-6 ml-auto mr-10">
-                    <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
-                    <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
-                    <FaInstagram size={44} className="text-pink-600 cursor-pointer" />
-                </div>
             </div>
+
 
             <div className="w-full flex justify-center my-4">
                 <div style={{width: '160rem', height: '2px', backgroundColor: '#DBDBDB'}}></div>
@@ -43,6 +48,14 @@ export const StartupInfo: React.FC = () => {
                     <div className="w-[42.76px] h-[42.76px] rounded-full border bg-gray-300 -ml-2 flex justify-center items-center text-gray-600 font-semibold">
                         +2
                     </div>
+
+                <div className="flex tems-center gap-6 ml-auto mr-10">
+                    <a href={linkedin} target="_blank" rel="noopener noreferrer">
+                        <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
+                    </a>
+                    <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
+                    <FaInstagram size={44} className="text-pink-600 cursor-pointer" />
+                </div>
             </div>
 
             <div className="w-full flex justify-center my-4">
@@ -53,7 +66,7 @@ export const StartupInfo: React.FC = () => {
                 <div>
                     <h2 className="text-5xl font-semibold mt-7 mb-7">Project Description</h2>
                     <p className="text-gray-700 text-2xl ">
-                    Finful is a financial education platform that uses gamification and a learn-to-earn model to engage Gen Z in building financial knowledge. By completing tasks and earning rewards, users are motivated to learn more about finance. Banks benefit by gaining access to financially literate customers, creating a win-win scenario where Gen Z acquires key financial skills, and banks attract responsible, well-informed clients.
+                    {long_description}
                     </p>
                 </div>
 
