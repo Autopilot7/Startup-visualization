@@ -20,7 +20,7 @@ const Modal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex justify-center items-start">
       <div
         className={`relative p-8 bg-white w-full ${maxWidth} flex flex-col rounded-lg`}
       >

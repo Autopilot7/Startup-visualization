@@ -2,17 +2,24 @@
 import React from 'react';
 import { FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
 import { StartupCardProps } from './dashboard/StartupCard';
+import { useState } from 'react';
+import UpdateStartupForm from '@/components/forms/UpdateStartupForm'; // Adjust the import path as needed
+import Modal from '@/components/Modal'; // If you're using a modal component
 
-export default function StartupInfo({
-    name,
-    long_description,
-    avatar,
-    status,
-    priority,
-    phase,
-    batch,
-    linkedin,
-}: StartupCardProps): React.JSX.Element {
+export default function StartupInfo(props: StartupCardProps): React.JSX.Element {
+    const {
+      id,
+      name,
+      long_description,
+      avatar,
+      status,
+      priority,
+      phase,
+      batch,
+      linkedin,
+    } = props;
+    
+    const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
     return (
         <div className="w-full h-full bg-white space-y">
             <div className='flex'>
@@ -32,6 +39,12 @@ export default function StartupInfo({
                         <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
                     </div>
                 </div>
+                <button
+                onClick={() => setIsUpdateFormVisible(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4"
+                >
+                Edit Startup
+                </button>
             </div>
 
 
@@ -121,6 +134,19 @@ export default function StartupInfo({
                     </div>
                 </div>
             </div>
+            {isUpdateFormVisible && (
+            <Modal
+            isOpen={isUpdateFormVisible}
+            onClose={() => setIsUpdateFormVisible(false)}
+            title="Update Startup"
+            maxWidth="max-w-4xl"
+            >
+            <UpdateStartupForm
+                startupId={id} // Pass the startup ID to fetch data inside the form
+                onClose={() => setIsUpdateFormVisible(false)}
+            />
+            </Modal>
+        )}
         </div>
         
     );
