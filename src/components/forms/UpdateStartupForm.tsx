@@ -15,14 +15,17 @@ import axios from 'axios';
 import { endpoints } from '@/app/utils/apis';
 import Select from "react-select"; 
 import { useForm, Controller } from "react-hook-form";
-import Control from "node_modules/react-select/dist/declarations/src/components/Control";
-
-
+import { StartupCardProps } from '@/components/dashboard/StartupCard';
 interface Member {
   id: string;
   name: string;
   role: string;
   active: boolean;
+}
+
+interface UpdateStartupFormProps {
+  startupId: string;
+  onClose: () => void;
 }
 
 interface Advisor {
@@ -58,11 +61,22 @@ const schema = z.object({
 
 type Inputs = z.infer<typeof schema>;
 
-const UpdateStartupForm = ({ startupId, onClose }: { startupId: string; onClose: () => void }) => {
+const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClose }) => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+  });
+  const [startupData, setStartupData] = useState<Inputs | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; name: string }>>([]);
+  const [members, setMembers] = useState<Member[]>([]);
     const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-    const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; name: string }>>([]);
     const [selectedMemberOptions, setSelectedMemberOptions] = useState<Array<{ value: string; label: string }>>([]);
-    const [members, setMembers] = useState<Member[]>([]);
     const [mounted, setMounted] = useState(false);
     const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -78,62 +92,108 @@ const UpdateStartupForm = ({ startupId, onClose }: { startupId: string; onClose:
     const [statuses, setStatuses] = useState<Array<{ id: string; name: string }>>([]);
     const [priorities, setPriorities] = useState<Array<{ id: string; name: string }>>([]);
     const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
+    const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
+    const [selectedPhases, setSelectedPhases] = useState<string[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<string>('');
+    const [selectedBatch, setSelectedBatch] = useState<string>('');
+    const [selectedPriority, setSelectedPriority] = useState<string>('');
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        setValue,
-        control,
-      } = useForm<Inputs>({
-        resolver: zodResolver(schema),
-      });
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const token = localStorage.getItem("accessToken");
+          if (!token) {
+            throw new Error("No authentication token found");
+          }
   
-  // Update localStorage whenever members change
-  // Load members from localStorage on mount
+          const [phasesResponse, statusesResponse, prioritiesResponse, batchesResponse] = await Promise.all([
+            axios.get(endpoints.phases, { headers: { Authorization: `Bearer ${token}` } }),
+            axios.get(endpoints.statuses, { headers: { Authorization: `Bearer ${token}` } }),
+            axios.get(endpoints.priorities, { headers: { Authorization: `Bearer ${token}` } }),
+            axios.get(endpoints.batches, { headers: { Authorization: `Bearer ${token}` } }),
+          ]);
+  
+          setPhases(phasesResponse.data);
+          setStatuses(statusesResponse.data);
+          setPriorities(prioritiesResponse.data);
+          setBatches(batchesResponse.data);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          toast.error("Failed to load data");
+        }
+      };
+  
+      fetchData();
+    }, []);
+    
   useEffect(() => {
-    const storedMembers = localStorage.getItem('members');
-    if (storedMembers) {
-      try {
-        const parsedMembers: Array<Member> = JSON.parse(storedMembers);
-        // Validate that each member has an id
-        const validMembers = parsedMembers.filter(member => member.id && member.name);
-        setMembers(validMembers);
-      } catch (error) {
-        console.error('Error parsing stored members:', error);
-        localStorage.removeItem('members'); // Clear invalid data
-      }
-    }
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchStartupData = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
-          throw new Error("No authentication token found");
+          throw new Error("No authentication token found. Please log in.");
         }
 
-        const [phasesResponse, statusesResponse, prioritiesResponse, batchesResponse] = await Promise.all([
-          axios.get(endpoints.phases, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(endpoints.statuses, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(endpoints.priorities, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(endpoints.batches, { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
 
-        setPhases(phasesResponse.data);
-        setStatuses(statusesResponse.data);
-        setPriorities(prioritiesResponse.data);
-        setBatches(batchesResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load data");
+        const response = await axios.get(
+          `https://startupilot.cloud.strixthekiet.me/api/startups/${startupId}`, // Adjust the endpoint as needed
+          { headers }
+        );
+
+        console.log("Startup Data:", response.data);
+
+        if (response.status === 200) {
+          const data = response.data;
+  
+          // Map response data to form inputs
+          const startupData: Inputs = {
+            startupName: data.name || '',
+            shortdescription: data.short_description || '',
+            description: data.description || '',
+            email: data.email || '',
+            linkedinUrl: data.linkedin_url || '',
+            facebookUrl: data.facebook_url || '',
+            category: data.category || '',
+            phone: data.phone || '',
+            location: data.location || '',
+            revenue: data.revenue || '',
+            // Map other fields as needed
+          };
+  
+          // Reset the form with the fetched data
+          reset(startupData);
+  
+          setSelectedMembers(data.memberships.map((member: any) => ({
+            id: member.member.id,
+            name: member.member.name,
+            role: member.roles || '',
+            active: member.status,
+          })));
+  
+          setSelectedPhases(data.phases || []);
+          setSelectedStatus(data.status || '');
+          setSelectedBatch(data.batch || '');
+          setSelectedPriority(data.priority || '');
+  
+        } else {
+          throw new Error("Failed to fetch startup data.");
+        }
+      } catch (error: any) {
+        console.error("Error fetching startup data:", error);
+        toast.error("Failed to fetch startup data.");
+      } finally {
+        setLoading(false);
       }
     };
+  
+    fetchStartupData();
+  }, [startupId]);
 
-    fetchData();
-  }, []);
+  
 
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -173,52 +233,6 @@ const UpdateStartupForm = ({ startupId, onClose }: { startupId: string; onClose:
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    const fetchStartupData = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-
-        const response = await axios.get(`${endpoints.startups}/${startupId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const startupData = response.data;
-
-        // Pre-fill form with existing data
-        setValue("startupName", startupData.name);
-        setValue("shortdescription", startupData.short_description);
-        setValue("description", startupData.description);
-        setValue("email", startupData.contact_email);
-        setValue("linkedinUrl", startupData.linkedin_url);
-        setValue("facebookUrl", startupData.facebook_url);
-        setValue("phases", startupData.phases.map((phase: any) => phase.id));
-        setValue("status", startupData.status.id);
-        setValue("priority", startupData.priority.id);
-        setValue("batch", startupData.batch.id);
-        setMembers(startupData.memberships.map((membership: any) => ({
-          id: membership.id,
-          name: membership.member.name,
-          role: membership.roles,
-          active: membership.status,
-        })));
-        setAdvisors(startupData.mentorships.map((mentorship: any) => ({
-          id: mentorship.id,
-          name: mentorship.advisor.name,
-          areaOfExpertise: mentorship.advisor.areaOfExpertise,
-        })));
-      } catch (error) {
-        console.error("Error fetching startup data:", error);
-        toast.error("Failed to load startup data");
-      }
-    };
-
-    fetchStartupData();
-  }, [startupId, setValue]);
   
   useEffect(() => {
     const fetchCategoriesAndMembers = async () => {
@@ -402,17 +416,17 @@ const UpdateStartupForm = ({ startupId, onClose }: { startupId: string; onClose:
         console.log("Startup Data:", startupData);
     
         // **Submit Startup Data**
-        const createStartupResponse = await axios.post(
-          endpoints.createStartup,
+        const response = await axios.put(
+          `https://startupilot.cloud.strixthekiet.me/api/startups/${startupId}/`,
           startupData,
           { headers }
         );
     
-        if (createStartupResponse.status === 201) {
-          toast.success("Startup created successfully!");
+        if (response.status === 201) {
+          toast.success("Startup updated successfully!");
           // Optionally, redirect or reset form here
         } else {
-          throw new Error("Failed to create startup.");
+          throw new Error("Failed to update startup.");
         }
       } catch (error: any) {
         if (axios.isAxiosError(error)) {
@@ -431,6 +445,12 @@ const UpdateStartupForm = ({ startupId, onClose }: { startupId: string; onClose:
     // Avoid rendering differences during hydration
     return null;
   }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+
   return (
     <div className="max-w-7xl mx-auto p-8">
       <form

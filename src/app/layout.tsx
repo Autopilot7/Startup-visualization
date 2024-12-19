@@ -1,7 +1,7 @@
 import { inter } from "@/components/ui/fonts";
 import "./globals.css";
 import { Toaster } from "sonner";
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {

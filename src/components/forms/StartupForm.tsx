@@ -933,4 +933,3 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
 };
 
 export default StartupForm;
-
