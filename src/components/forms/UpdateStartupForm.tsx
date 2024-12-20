@@ -48,15 +48,15 @@ const schema = z.object({
   category: z.string(),
   customCategory: z.string().optional(),
   phone: z.string(),
-  email: z.string().email({ message: "Invalid email address!" }),
+  email: z.string().optional(),
   description: z.string(),
   shortdescription: z.string(),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
   location: z.string(), // Added location field
-  revenue: z.string(),  // Added revenue field
-  facebookUrl: z.string().url({ message: "Invalid Facebook URL" }).optional(),
-  linkedinUrl: z.string().url({ message: "Invalid LinkedIn URL" }).optional(),
+  Valuation: z.string(),  // Added Valuation field
+  facebookUrl: z.string().optional(),
+  linkedinUrl: z.string().optional(),
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -157,10 +157,10 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
             email: data.email || '',
             linkedinUrl: data.linkedin_url || '',
             facebookUrl: data.facebook_url || '',
-            category: data.category || '',
+            category: data.category?.id || '',
             phone: data.phone || '',
             location: data.location || '',
-            revenue: data.revenue || '',
+            Valuation: data.Valuation || '',
             // Map other fields as needed
           };
   
@@ -414,13 +414,20 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
         };
     
         console.log("Startup Data:", startupData);
+        console.log("Startup ID:", startupId);
     
         // **Submit Startup Data**
         const response = await axios.put(
-          `https://startupilot.cloud.strixthekiet.me/api/startups/${startupId}/`,
+          `https://startupilot.cloud.strixthekiet.me/api/startups/${startupId}`,
           startupData,
-          { headers }
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+        console.log("Update Startup Response:", response);
     
         if (response.status === 201) {
           toast.success("Startup updated successfully!");
@@ -430,9 +437,9 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
         }
       } catch (error: any) {
         if (axios.isAxiosError(error)) {
-          console.error("Error creating startup:", error.response?.data);
+          console.error("Error update startup:", error.response?.data);
           toast.error(
-            error.response?.data?.message || "Failed to create startup."
+            error.response?.data?.message || "Failed to update startup."
           );
         } else {
           console.error("Unexpected error:", error);
@@ -563,10 +570,10 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
               error={errors.location}
             />
             <InputField
-              label="Revenue"
-              name="revenue"
+              label="Valuation"
+              name="Valuation"
               register={register}
-              error={errors.revenue}
+              error={errors.Valuation}
             />
           </div>
           {/* Relationships: Phases, Status, Priority, Batch */}

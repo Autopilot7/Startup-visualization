@@ -44,16 +44,16 @@ const schema = z.object({
   batch: z.string().optional(), // Changed from enum to single ID
   category: z.string(),
   customCategory: z.string().optional(),
-  phone: z.string(),
-  email: z.string().email({ message: "Invalid email address!" }),
+  phone: z.string().optional(),
+  email: z.string().optional(),
   description: z.string(),
   shortdescription: z.string(),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
-  location: z.string(), // Added location field
-  revenue: z.string(),  // Added revenue field
-  facebookUrl: z.string().url({ message: "Invalid Facebook URL" }).optional(),
-  linkedinUrl: z.string().url({ message: "Invalid LinkedIn URL" }).optional(),
+  location: z.string().optional(), // Added location field
+  Valuation: z.string().optional(),  // Added Valuation field
+  facebookUrl: z.string().optional(),
+  linkedinUrl: z.string().optional(),
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -398,7 +398,6 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           <InputField
             label="Startup Name"
             name="startupName"
-            defaultValue={data?.startupName}
             register={register}
             error={errors?.startupName}
           />
@@ -496,16 +495,14 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             <InputField
               label="Location"
               name="location"
-              defaultValue={data?.location}
               register={register}
               error={errors.location}
             />
             <InputField
-              label="Revenue"
-              name="revenue"
-              defaultValue={data?.revenue}
+              label="Valuation"
+              name="Valuation"
               register={register}
-              error={errors.revenue}
+              error={errors.Valuation}
             />
           </div>
           {/* Relationships: Phases, Status, Priority, Batch */}
@@ -705,14 +702,12 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             <InputField
               label="Phone"
               name="phone"
-              defaultValue={data?.phone}
               register={register}
               error={errors.phone}
             />
             <InputField
               label="Email"
               name="email"
-              defaultValue={data?.email}
               register={register}
               error={errors.email}
             />
