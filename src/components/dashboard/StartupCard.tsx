@@ -5,6 +5,47 @@ import Badge from '@/components/dashboard/Badge';
 import Image from 'next/image';
 import Link from 'next/link';
 
+export interface Note{
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  email: string | null;
+  avatar: string | null;
+}
+
+export interface Membership {
+  id: string;
+  member: Member;
+  status: boolean;
+  roles: string[] | null;
+}
+
+export interface Startup {
+  id: string;
+  name: string;
+  short_description: string;
+  long_description: string;
+  email: string;
+  category: string;
+  linkedin_url: string;
+  facebook_url: string;
+  phases: string[];
+  status: string;
+  priority: string;
+  batch: string;
+  pitch_deck: string;
+  avatar: string;
+  memberships: Membership[];
+  advisors: any[]; // define if you have structure for advisors
+  notes: Note[];
+}
+
 export interface StartupCardProps {
   name: string;
   short_description: string;
