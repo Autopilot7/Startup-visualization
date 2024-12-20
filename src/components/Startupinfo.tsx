@@ -1,12 +1,12 @@
 'use client'
 import React from 'react';
 import { FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
-import { StartupCardProps } from './dashboard/StartupCard';
+import { Note, Startup, StartupCardProps } from './dashboard/StartupCard';
 import { useState } from 'react';
 import UpdateStartupForm from '@/components/forms/UpdateStartupForm'; // Adjust the import path as needed
 import Modal from '@/components/Modal'; // If you're using a modal component
 
-export default function StartupInfo(props: StartupCardProps): React.JSX.Element {
+export default function StartupInfo(props: Startup): React.JSX.Element {
     const {
       id,
       name,
@@ -14,9 +14,12 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
       avatar,
       status,
       priority,
-      phase,
+      phases,
       batch,
-      linkedin,
+      linkedin_url,
+      memberships,
+      notes,
+      pitch_deck,
     } = props;
     
     const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
@@ -34,7 +37,7 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
                     </div>
                     <div className="ml-4 flex items-center mb-4">
                         <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{batch}</span>
-                        <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{phase}</span>
+                        <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{phases}</span>
                         <span className="bg-red-600 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{priority}</span>
                         <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
                     </div>
@@ -47,23 +50,36 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
                 </button>
             </div>
 
-
             <div className="w-full flex justify-center my-4">
                 <div style={{width: '160rem', height: '2px', backgroundColor: '#DBDBDB'}}></div>
             </div>
 
             <div className='flex items-center'>
-                <h1 className = 'text-xl ml-4 font text-purple-600'>ACTIVE FOUNDER</h1>
+                <h1 className = 'text-xl ml-4 font text-purple-600'>ACTIVE MEMBER</h1>
                 <div className="flex items-center ml-4 relative"></div>
-                    <img className="w-[42.76px] h-[42.76px] rounded-full border border-white" src="https://via.placeholder.com/43x38" />
-                    <img className="w-[42.76px] h-[42.76px] rounded-full border border-white -ml-2" src="https://via.placeholder.com/43x38" />
-                    <img className="w-[42.76px] h-[42.76px] rounded-full border border-white -ml-2" src="https://via.placeholder.com/43x38" />
-                    <div className="w-[42.76px] h-[42.76px] rounded-full border bg-gray-300 -ml-2 flex justify-center items-center text-gray-600 font-semibold">
-                        +2
-                    </div>
+                {memberships.slice(0, 3).map((memberships, index) => {
+                    const member = memberships.member;
+                    const avatarUrl = member.avatar ? member.avatar : "https://via.placeholder.com/43x38";
+                    return (
+                        <img
+                        key={memberships.id}
+                        className={`w-[42.76px] h-[42.76px] rounded-full border border-white ${index > 0 ? "-ml-2" : ""}`}
+                        src={avatarUrl}
+                        alt={member.name || "Member Avatar"}
+                        />
+                    );
+                })}
+
+                {/* If there are more than 3 members, show a "+X" badge for the rest */}
+                {memberships.length > 3 && (
+                <div className="w-[42.76px] h-[42.76px] rounded-full border bg-gray-300 -ml-2 flex justify-center items-center text-gray-600 font-semibold">
+                    +{memberships.length - 3}
+                </div>
+                )}
+
 
                 <div className="flex tems-center gap-6 ml-auto mr-10">
-                    <a href={linkedin} target="_blank" rel="noopener noreferrer">
+                    <a href={linkedin_url} target="_blank" rel="noopener noreferrer">
                         <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
                     </a>
                     <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
@@ -83,7 +99,7 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
                     </p>
                 </div>
 
-                <div>
+                {/* <div>
                     <h2 className="text-5xl font-bold mt-7 mb-7">Latest News</h2>
                     <ul className="space-y-4">
                         <li>
@@ -101,10 +117,30 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
                             <p className="text-xl mt-2">Oct 2023</p>
                         </li>
                     </ul>
-                </div>
+                </div> */}
 
+                
+
+                <div> 
+                <h2 className="text-5xl font-bold mt-7 mb-8">Notes</h2>
+                    
+                {notes && notes.length > 0 ? (
                 <div>
-                    <h2 className="text-5xl font-bold mt-7 mb-8">Funding Rounds</h2>
+                    {notes.map((note: Note) => (
+                    <div key={note.id} className="mb-4 p-4 border rounded">
+                        <p><strong>Content:</strong> {note.content}</p>
+                        <p><strong>Created At:</strong> {note.created_at}</p>
+                        <p><strong>Updated At:</strong> {note.updated_at}</p>
+                    </div>
+                    ))}
+                </div>
+                ) : (
+                <p>No notes available.</p>
+                )}
+
+                
+<div>
+                    <h2 className="text-5xl font-bold mt-7 mb-8">Revenue</h2>
                     <div className="space-y-6">
                         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                             <div className="flex justify-between items-center">
@@ -132,6 +168,25 @@ export default function StartupInfo(props: StartupCardProps): React.JSX.Element 
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                
+                <div>
+                <h2 className="text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
+
+                <div style={{ height: '500px' }}>
+                <iframe
+                    // src={pitch_deck}
+                    src = {"https://th.bing.com/th/id/OIP.GT4256Odg6UjsYKIgYmOyAHaEI?rs=1&pid=ImgDetMain"}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 'none' }}
+                    title="PDF Viewer"
+                ></iframe>
+                </div>
+                </div>
+               
+
                 </div>
             </div>
             {isUpdateFormVisible && (
