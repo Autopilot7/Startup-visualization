@@ -231,7 +231,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                             {memberships.map((advisor) => (
                             <MemberCard
                                 key={advisor.id}
-                                id={advisor.id}
+                                id={advisor.member.id}
                                 name={advisor.member.name}
                                 avatar={advisor.member.avatar || undefined}
                                 // If membership array is available, pass it
