@@ -20,7 +20,6 @@ export interface Member {
 }
 
 export interface Membership {
-  name: string;
   id: string;
   member: Member;
   status: boolean;

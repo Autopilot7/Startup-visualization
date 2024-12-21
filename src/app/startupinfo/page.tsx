@@ -46,7 +46,7 @@ export default function Startupinfo() {
               email={startup.email}
               linkedin_url={startup.linkedin}
               facebook_url={startup.facebook}
-              pitch_deck={startup.pitchdeck} memberships={[]} advisors={[]} notes={[]}              />
+              pitch_deck={startup.pitchdeck} memberships={[]} advisors={[]} notes={[]} location={""}              />
           ))}
         </div>
     </div>
