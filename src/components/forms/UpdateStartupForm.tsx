@@ -470,12 +470,10 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
       } catch (error: any) {
         if (axios.isAxiosError(error)) {
           console.error("Error update startup:", error.response?.data);
-          toast.error(
-            error.response?.data?.message || "Failed to update startup."
-          );
+          
         } else {
           console.error("Unexpected error:", error);
-          toast.error("An unexpected error occurred.");
+          
         }
       }
     });
