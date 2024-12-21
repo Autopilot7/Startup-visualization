@@ -32,28 +32,28 @@ interface Advisor {
 }
 
 const schema = z.object({
-  startupName: z.string(),
+  startupName: z.string().nonempty("Name is required"),
     advisors: z.array(
       z.object({
         id: z.string(),
       })
     ).optional(),
-  phases: z.array(z.string()).optional(), // Changed from single enum to array of IDs
-  status: z.string().optional(), // Changed from enum to single ID
-  priority: z.string().optional(), // Changed from enum to single ID
-  batch: z.string().optional(), // Changed from enum to single ID
-  category: z.string(),
+    phases: z.array(z.string()).nonempty("At least one phase is required"),
+    status: z.string().nonempty("Status is required"),
+    priority: z.string().nonempty("Priority is required"),
+    batch: z.string().nonempty("Batch is required"),
+    category: z.string().nonempty("Category is required"),
   customCategory: z.string().optional(),
-  phone: z.string(),
-  email: z.string().email({ message: "Invalid email address!" }),
-  description: z.string(),
-  shortdescription: z.string(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  description: z.string().nonempty("Long description is required"),
+  shortdescription: z.string().nonempty("Short description is required"),
   logo: z.any().optional(),
   pitchdeck: z.any().optional(),
-  location: z.string(), // Added location field
-  revenue: z.string(),  // Added revenue field
-  facebookUrl: z.string().url({ message: "Invalid Facebook URL" }).optional(),
-  linkedinUrl: z.string().url({ message: "Invalid LinkedIn URL" }).optional(),
+  location: z.string().optional(), // Added location field
+  facebookUrl: z.string().optional(),
+  linkedinUrl: z.string().optional(),
+
 });
 
 type Inputs = z.infer<typeof schema>;
@@ -80,6 +80,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const [statuses, setStatuses] = useState<Array<{ id: string; name: string }>>([]);
   const [priorities, setPriorities] = useState<Array<{ id: string; name: string }>>([]);
   const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
+  const [pitchDeckFileName, setPitchDeckFileName] = useState<string | null>(null);
   // Update localStorage whenever members change
   // Load members from localStorage on mount
   useEffect(() => {
@@ -225,6 +226,23 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
       { ...member, role: "", active: true },
     ]);
   };
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoPreview(URL.createObjectURL(file));
+    } else {
+      setLogoPreview(null);
+    }
+  };
+
+  const handlePitchDeckChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPitchDeckFileName(file.name);
+      console.log('Pitch Deck File:', file);
+    }
+  };
+
   
   // Pass handleAddMember to CreateMemberForm
   <CreateMemberForm
@@ -276,14 +294,14 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         };
-    
-        // **Upload Logo (Avatar)**
         let logoUrl = "";
         if (data.logo && data.logo.length > 0) {
           const logoFile = data.logo[0];
           const formData = new FormData();
           formData.append("file", logoFile);
           formData.append("type", "avatar");
+
+          console.log('Form Data:', formData);
     
           const uploadLogoResponse = await axios.post(
             endpoints.uploadavatar,
@@ -295,6 +313,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               },
             }
           );
+          console.log('Upload Logo Response:', uploadLogoResponse);
     
           logoUrl = uploadLogoResponse.data.file_url;
           if (!logoUrl) {
@@ -308,7 +327,9 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           const pitchDeckFile = data.pitchdeck[0];
           const formData = new FormData();
           formData.append("file", pitchDeckFile);
-          formData.append("type", "pitch_deck");
+          formData.append("type", "pitchdeck");
+
+          console.log('Form Data:', formData);
     
           const uploadPitchDeckResponse = await axios.post(
             endpoints.uploadavatar,
@@ -320,6 +341,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
               },
             }
           );
+          console.log('Upload Pitch Deck Response:', uploadPitchDeckResponse);
     
           pitchDeckUrl = uploadPitchDeckResponse.data.file_url;
           if (!pitchDeckUrl) {
@@ -398,7 +420,6 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           <InputField
             label="Startup Name"
             name="startupName"
-            defaultValue={data?.startupName}
             register={register}
             error={errors?.startupName}
           />
@@ -408,8 +429,23 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             <textarea
                 {...register("shortdescription")}
                 defaultValue={data?.shortdescription || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-32"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-20"
                 placeholder="Enter a short description..."
+            ></textarea>
+            {errors.description && (
+                <p className="text-xs text-red-500 mt-1">
+                {errors.shortdescription && errors.shortdescription.message?.toString()}
+                </p>
+            )}
+            </div>
+             {/* Ô nhập Description với textarea */}
+             <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <textarea
+                {...register("description")}
+                defaultValue={data?.description || ""}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-32"
+                placeholder="Enter a description..."
             ></textarea>
             {errors.description && (
                 <p className="text-xs text-red-500 mt-1">
@@ -496,16 +532,8 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             <InputField
               label="Location"
               name="location"
-              defaultValue={data?.location}
               register={register}
               error={errors.location}
-            />
-            <InputField
-              label="Revenue"
-              name="revenue"
-              defaultValue={data?.revenue}
-              register={register}
-              error={errors.revenue}
             />
           </div>
           {/* Relationships: Phases, Status, Priority, Batch */}
@@ -705,14 +733,12 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
             <InputField
               label="Phone"
               name="phone"
-              defaultValue={data?.phone}
               register={register}
               error={errors.phone}
             />
             <InputField
               label="Email"
               name="email"
-              defaultValue={data?.email}
               register={register}
               error={errors.email}
             />
@@ -779,98 +805,80 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           )}
         </div>
       </div>
-          {/* Ô nhập Description với textarea */}
-            <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-                {...register("description")}
-                defaultValue={data?.description || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-32"
-                placeholder="Enter a description..."
-            ></textarea>
-            {errors.description && (
-                <p className="text-xs text-red-500 mt-1">
-                {errors.description.message?.toString()}
-                </p>
-            )}
-            </div>
         </div>
 
         {/* Cột upload */}
         <div className="flex flex-col items-center gap-6">
-          {/* Upload Logo */}
-          <div className="w-full max-w-xs">
-            <h2 className="text-lg font-semibold mb-2 text-center">Upload Logo</h2>
-            <div className="border border-gray-300 rounded-lg p-6 text-center">
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Uploaded logo"
-                  className="w-20 h-20 mx-auto mb-4 object-cover rounded-full"
-                />
-              ) : (
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">No Logo</span>
-                </div>
-              )}
-              <input
-                type="file"
-                id="logo-upload"
-                className="hidden"
-                accept="image/*" 
-                {...register("logo")}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setLogoPreview(reader.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                  } else {
-                    setLogoPreview(null);
-                  }
-                }}
-              />
-              <label
-                htmlFor="logo-upload"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
-              >
-                Upload Logo
-              </label>
+        <h2 className="text-lg font-semibold mb-2 text-center">Logo</h2>
+        <div className="border border-gray-300 rounded-lg p-6 text-center">
+          {logoPreview ? (
+            <img
+              src={logoPreview}
+              alt="Logo Preview"
+              className="w-48 h-48 object-cover rounded-full mb-4"
+            />
+          ) : (
+            <div className="w-48 h-48 flex items-center justify-center bg-gray-200 rounded-full mb-4">
+              <p className="text-gray-500">No Logo</p>
             </div>
+          )}
+          <div className="flex flex-col items-center">
+            <input
+              type="file"
+              accept="image/*"
+              {...register("logo")}
+              onChange={(e) => {
+                register("logo").onChange(e);
+                handleLogoChange(e);
+              }}
+              className="hidden"
+              id="logo-upload"
+            />
+            <label
+              htmlFor="logo-upload"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-600"
+            >
+              Upload Logo
+            </label>
+            {errors.logo && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.logo.message?.toString()}
+              </p>
+            )}
           </div>
+        </div>
 
           {/* Upload Pitchdeck */}
-          <div className="w-full max-w-xs">
-            <h2 className="text-lg font-semibold mb-2 text-center">Upload Pitchdeck</h2>
-            <div className="border border-gray-300 rounded-lg p-6 text-center">
-              <p className="text-gray-500 mb-2">
-                {pitchdeckFileName || "No file selected"}
+          <div className="flex flex-col items-center gap-6">
+          <h2 className="text-lg font-semibold mb-2 text-center">Pitch Deck</h2>
+          <div className="border border-gray-300 rounded-lg p-6 text-center">
+            <input
+              type="file"
+              accept=".pdf,.ppt,.pptx"
+              {...register("pitchdeck")}
+              onChange={(e) => {
+                register("pitchdeck").onChange(e);
+                handlePitchDeckChange(e);
+              }}
+              className="hidden"
+              id="pitchdeck-upload"
+            />
+            <label
+              htmlFor="pitchdeck-upload"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-600"
+            >
+              Upload Pitch Deck
+            </label>
+            {pitchDeckFileName && (
+              <p className="text-sm text-gray-700 mt-2">{pitchDeckFileName}</p>
+            )}
+            {errors.pitchdeck && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.pitchdeck.message?.toString()}
               </p>
-              <input
-                type="file"
-                id="pitchdeck-upload"
-                className="hidden"
-                accept=".pdf,.ppt,.pptx" 
-                {...register("pitchdeck")}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setPitchdeckFileName(file.name);
-                  } else {
-                    setPitchdeckFileName(null);
-                  }
-                }}
-              />
-              <label
-                htmlFor="pitchdeck-upload"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
-              >
-                Upload Pitchdeck
-              </label>
-            </div>
+            )}
           </div>
+        </div>
         </div>
 
         <div className="lg:col-span-3 flex justify-center gap-4 mt-6">
