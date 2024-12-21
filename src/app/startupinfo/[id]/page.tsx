@@ -25,7 +25,7 @@ export default async function StartupInfoPage({ params }: { params: Promise<{ id
       <StartupInfo
         id={startup.id}
         name={startup.name}
-        // short_description={startup.short_description}
+        short_description={startup.short_description}
         long_description={startup.long_description}
         avatar={startup.avatar}
         // category={startup.category}
@@ -36,14 +36,15 @@ export default async function StartupInfoPage({ params }: { params: Promise<{ id
         // email={startup.email}
         linkedin_url={startup.linkedin_url}
         // facebook_url={startup.facebook_url}
-        notes = {startup.notes}
-        pitch_deck={startup.pitch_deck} 
-        short_description={""} 
-        email={""} 
-        category={""} 
-        facebook_url={""} 
-        memberships={startup.memberships} 
-        advisors={[]} />
+        notes={startup.notes}
+        pitch_deck={startup.pitch_deck}
+        // short_description={""} 
+        email={""}
+        category={""}
+        facebook_url={""}
+        memberships={startup.memberships}
+        advisors={startup.advisors} 
+        location={startup.location} />
     </div>
   );
 }

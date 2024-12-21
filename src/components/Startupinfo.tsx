@@ -1,16 +1,22 @@
 'use client'
-import React from 'react';
+import React, { useContext } from 'react';
 import { FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
 import { Note, Startup, StartupCardProps } from './dashboard/StartupCard';
 import { useState } from 'react';
 import UpdateStartupForm from '@/components/forms/UpdateStartupForm'; // Adjust the import path as needed
 import Modal from '@/components/Modal'; // If you're using a modal component
+import Link from 'next/link';
+import MemberCard from './Membercard';
+import AdvisorCard from './Advisorcard';
+import { fetchAdvisorById } from '@/app/actions';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function StartupInfo(props: Startup): React.JSX.Element {
     const {
       id,
       name,
       long_description,
+      short_description,
       avatar,
       status,
       priority,
@@ -18,30 +24,53 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
       batch,
       linkedin_url,
       memberships,
+      advisors,
       notes,
       pitch_deck,
+      location,
     } = props;
     
     const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
+    const activeMemberships = memberships.filter((m) => m.status);
+    const { isAuthenticated } = useContext(AuthContext);
     return (
         <div className="w-full h-full bg-white space-y">
             <div className='flex'>
                 <div>
-                    <div className='flex flex-col gap-y-2' >
-                        <div className="w-[70rem] bg-white rounded-2xl p-6 flex gap-x-8 mb-1">
-                            <img src={avatar}
-                                className="w-[7rem] rounded-full left-1"
-                                alt="" />
-                            <h1 className="text-5xl font-bold flex-1 self-center">{name}</h1>
+                <div className='flex flex-col gap-y-2'>
+                    <div className="w-[70rem] bg-white rounded-2xl p-6 flex gap-x-8 mb-1">
+                        <img 
+                        src={avatar}
+                        className="w-[7rem] rounded-full left-1"
+                        alt=""
+                        />
+                        
+                        {/* Use a nested container so you can stack {name} and shortDescription vertically */}
+                        <div className="flex flex-col self-center">
+                        <h1 className="text-5xl font-bold">{name}</h1>
+                        {/* Here we insert the short description below the name */}
+                        <p className="text-gray-600 mt-2">
+                            {short_description}
+                        </p>
+                        <p className="text-dark-500 font-bold">
+                            {location}
+                        </p>
                         </div>
                     </div>
+                    </div>
+
                     <div className="ml-4 flex items-center mb-4">
                         <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{batch}</span>
                         <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{phases}</span>
                         <span className="bg-red-600 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{priority}</span>
                         <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
+                        {/* <div className="flex items-center gap-6 ml-auto mr-auto">
+                            <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">Location</span>
+                         </div> */}
                     </div>
+                    
                 </div>
+                
                 <button
                 onClick={() => setIsUpdateFormVisible(true)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4"
@@ -57,23 +86,32 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
             <div className='flex items-center'>
                 <h1 className = 'text-xl ml-4 font text-purple-600'>ACTIVE MEMBER</h1>
                 <div className="flex items-center ml-4 relative"></div>
-                {memberships.slice(0, 3).map((memberships, index) => {
-                    const member = memberships.member;
-                    const avatarUrl = member.avatar ? member.avatar : "https://via.placeholder.com/43x38";
-                    return (
-                        <img
-                        key={memberships.id}
-                        className={`w-[42.76px] h-[42.76px] rounded-full border border-white ${index > 0 ? "-ml-2" : ""}`}
+
+
+                {activeMemberships.slice(0, 4).map((membership, index) => {
+                const member = membership.member;
+                const avatarUrl = member.avatar || 'https://via.placeholder.com/43x38';
+                return (
+                    <Link
+                    key={membership.id}
+                    href={`/membercard/${member.id}`}
+                    className={`relative w-[42.76px] h-[42.76px] rounded-full border border-white overflow-hidden ${
+                        index > 0 ? '-ml-2' : ''
+                    }`}
+                    >
+                    <img
+                        className="object-cover w-full h-full"
                         src={avatarUrl}
-                        alt={member.name || "Member Avatar"}
-                        />
-                    );
+                        alt={member.name || 'Member Avatar'}
+                    />
+                    </Link>
+                );
                 })}
 
-                {/* If there are more than 3 members, show a "+X" badge for the rest */}
-                {memberships.length > 3 && (
+                {/* If there are more than 2 active members, show a "+X" badge for the rest */}
+                {activeMemberships.length > 2 && (
                 <div className="w-[42.76px] h-[42.76px] rounded-full border bg-gray-300 -ml-2 flex justify-center items-center text-gray-600 font-semibold">
-                    +{memberships.length - 3}
+                    +{activeMemberships.length - 2}
                 </div>
                 )}
 
@@ -120,7 +158,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                 </div> */}
 
                 
-
+                {isAuthenticated && 
                 <div> 
                 <h2 className="text-5xl font-bold mt-7 mb-8">Notes</h2>
                     
@@ -128,18 +166,18 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                 <div>
                     {notes.map((note: Note) => (
                     <div key={note.id} className="mb-4 p-4 border rounded">
-                        <p><strong>Content:</strong> {note.content}</p>
-                        <p><strong>Created At:</strong> {note.created_at}</p>
-                        <p><strong>Updated At:</strong> {note.updated_at}</p>
+                        <p><strong>Note:</strong> {note.content}</p>
                     </div>
                     ))}
                 </div>
                 ) : (
                 <p>No notes available.</p>
                 )}
+                </div>
+}
 
                 
-<div>
+{/* <div>
                     <h2 className="text-5xl font-bold mt-7 mb-8">Revenue</h2>
                     <div className="space-y-6">
                         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
@@ -169,12 +207,12 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                         </div>
                     </div>
                 </div>
-                
+                 */}
                 
                 <div>
-                <h2 className="text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
+                <h2 className="center text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
 
-                <div style={{ height: '500px' }}>
+                <div>
                 <iframe
                     // src={pitch_deck}
                     src = {"https://th.bing.com/th/id/OIP.GT4256Odg6UjsYKIgYmOyAHaEI?rs=1&pid=ImgDetMain"}
@@ -184,10 +222,42 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                     title="PDF Viewer"
                 ></iframe>
                 </div>
+                
                 </div>
-               
 
+                <div>
+                <h2 className="ml-auto mr-auto text-5xl font-bold mt-7 mb-8">Members</h2>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            {memberships.map((advisor) => (
+                            <MemberCard
+                                key={advisor.id}
+                                id={advisor.member.id}
+                                name={advisor.member.name}
+                                avatar={advisor.member.avatar || undefined}
+                                // If membership array is available, pass it
+                                // memberships={member.memberships}
+                            />
+                            ))}
+                        </div>
                 </div>
+
+                <div>
+                <h2 className="ml-auto mr-auto text-5xl font-bold mt-7 mb-8">Advisors</h2>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            {advisors.map((advisor) => (
+                            <AdvisorCard
+                                key={advisor.id}
+                                id={advisor.id}
+                                name={advisor.name}
+                                avatar={advisor.avatar ?? undefined}
+                                // If membership array is available, pass it
+                                // memberships={member.memberships}
+                            />
+                            ))}
+                        </div>
+                </div>
+
+                
             </div>
             {isUpdateFormVisible && (
             <Modal

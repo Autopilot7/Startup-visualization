@@ -26,6 +26,12 @@ export interface Membership {
   roles: string[] | null;
 }
 
+export interface Advisors{
+  id: string;
+  name: string;
+  avatar: string | null;
+}
+
 export interface Startup {
   id: string;
   name: string;
@@ -42,8 +48,9 @@ export interface Startup {
   pitch_deck: string;
   avatar: string;
   memberships: Membership[];
-  advisors: any[]; // define if you have structure for advisors
+  advisors: Advisors[]; // define if you have structure for advisors
   notes: Note[];
+  location: string;
 }
 
 export interface StartupCardProps {
