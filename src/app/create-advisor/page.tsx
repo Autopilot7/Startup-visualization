@@ -11,10 +11,10 @@ import { endpoints } from '@/app/utils/apis';
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
-  phone: z.string().regex(/^\d{10,15}$/, "Invalid phone number"),
-  email: z.string().email("Invalid email address!"),
-  linkedin: z.string().url("Invalid LinkedIn URL").optional(),
-  facebook: z.string().url("Invalid Facebook URL").optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  linkedin: z.string().optional(),
+  facebook: z.string().optional(),
   areaOfExpertise: z.string().optional(),
   photo: z
   .any()
@@ -66,7 +66,9 @@ const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
 
       // Upload Photo
       const photoFile = data.photo[0];
-
+      if (!data.photo || data.photo.length == 0) {
+        throw new Error("No photo uploaded.");
+      }
       const formData = new FormData();
       formData.append("file", photoFile);
       formData.append("type", "avatar");
@@ -88,7 +90,7 @@ const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
         name: data.name,
         phone: data.phone,
         email: data.email,
-        avatar_url: avatarUrl,
+        avatar: avatarUrl,
         area_of_expertise: data.areaOfExpertise,
       };
 
