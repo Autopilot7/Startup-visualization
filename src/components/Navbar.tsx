@@ -13,25 +13,25 @@ const menuItems = [
     title: "MENU",
     items: [
       {
-        icon: <House size={25} />,
+        icon: <House size={30} />,
         label: "Dashboard",
         href: "/",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <ChartNoAxesCombined size={25} />,
+        icon: <ChartNoAxesCombined size={30} />,
         label: "Visualization",
         href: "/visualization",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <UsersRound size={25} />,
+        icon: <UsersRound size={30} />,
         label: "Members",
         href: "/members",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <LogIn size={25} />, 
+        icon: <LogIn size={30} />, 
         label: "Sign In",
         href: "/login", 
         visible: ["admin", "visitor"], // Always visible
