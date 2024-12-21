@@ -11,10 +11,10 @@ import { endpoints } from '@/app/utils/apis';
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
-  phone: z.string().regex(/^\d{10,15}$/, "Invalid phone number"),
-  email: z.string().email("Invalid email address!"),
-  linkedin: z.string().url("Invalid LinkedIn URL").optional(),
-  facebook: z.string().url("Invalid Facebook URL").optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  linkedin: z.string().optional(),
+  facebook: z.string().optional(),
   photo: z
     .any()
     .optional()
@@ -61,11 +61,8 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
         return;
 
       }
-      // Validate photo existence
-      if (!data.photo || data.photo.length === 0) {
-        toast.error("Please upload a photo.");
-        return;
-      }
+      let avatarUrl = "";
+      if(data.photo.length > 0) {
       // Upload Photo
       const photoFile = data.photo[0];
     
@@ -80,22 +77,17 @@ const CreateMemberForm: React.FC<CreateMemberFormProps> = ({ onClose, onAddMembe
           },
         });
 
-      const avatarUrl = uploadResponse.data.file_url;
+      avatarUrl = uploadResponse.data.file_url;
       console.log('Avatar URL:', avatarUrl);
-      if (!avatarUrl) {
-        throw new Error("Failed to upload photo.");
       }
-      // Check backend response
-      if (uploadResponse.status !== 200) {
-        throw new Error("Failed to upload photo. Please try again.");
-      }
+      
 
       // Submit Member Data
       const memberData: any = {
         name: data.name,
         phone: data.phone,
         email: data.email,
-        avatar: avatarUrl,
+        avatar: avatarUrl || null,
       };
       
       if (data.linkedin) memberData.linkedin_url = data.linkedin;
