@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { House, ChartNoAxesCombined, LogIn, LogOut } from 'lucide-react';
+import { House, ChartNoAxesCombined, LogIn, LogOut, UsersRound } from 'lucide-react';
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { montserrat } from "@/components/ui/fonts";
@@ -22,6 +22,12 @@ const menuItems = [
         icon: <ChartNoAxesCombined size={30} />,
         label: "Visualization",
         href: "/visualization",
+        visible: ["admin", "visitor"],
+      },
+      {
+        icon: <UsersRound size={30} />,
+        label: "Members",
+        href: "/members",
         visible: ["admin", "visitor"],
       },
       {
