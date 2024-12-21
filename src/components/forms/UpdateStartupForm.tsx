@@ -435,6 +435,7 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
           status: data.status || undefined,
           priority: data.priority || undefined,
           batch: data.batch || undefined,
+          location: data.location || undefined,
           // **Memberships**
           memberships: members.map((member) => ({
             id: member.id,
