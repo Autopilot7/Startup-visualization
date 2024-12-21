@@ -13,25 +13,25 @@ const menuItems = [
     title: "MENU",
     items: [
       {
-        icon: <House size={30} />,
+        icon: <House size={25} />,
         label: "Dashboard",
         href: "/",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <ChartNoAxesCombined size={30} />,
+        icon: <ChartNoAxesCombined size={25} />,
         label: "Visualization",
         href: "/visualization",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <UsersRound size={30} />,
+        icon: <UsersRound size={25} />,
         label: "Members",
         href: "/members",
         visible: ["admin", "visitor"],
       },
       {
-        icon: <LogIn size={30} />, 
+        icon: <LogIn size={25} />, 
         label: "Sign In",
         href: "/login", 
         visible: ["admin", "visitor"], // Always visible
@@ -52,8 +52,8 @@ export default function NavBar() {
           <Image
             src="/vinuni.png"
             alt="Vinuni Logo"
-            width={125}
-            height={125}
+            width={150}
+            height={150}
             className="max-md:hidden w-auto h-auto"
           />
         </Link>
