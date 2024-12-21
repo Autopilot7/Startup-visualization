@@ -354,6 +354,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           name: data.startupName,
           short_description: data.shortdescription,
           description: data.description,
+          location: data.location || undefined,
           contact_email: data.email,
           linkedin_url: data.linkedinUrl || undefined,
           facebook_url: data.facebookUrl || undefined,
@@ -530,7 +531,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
-              label="Location"
+              label="location"
               name="location"
               register={register}
               error={errors.location}
