@@ -52,8 +52,8 @@ export default function NavBar() {
           <Image
             src="/vinuni.png"
             alt="Vinuni Logo"
-            width={125}
-            height={125}
+            width={150}
+            height={150}
             className="max-md:hidden w-auto h-auto"
           />
         </Link>
