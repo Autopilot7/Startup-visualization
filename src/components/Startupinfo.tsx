@@ -264,7 +264,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
             isOpen={isUpdateFormVisible}
             onClose={() => setIsUpdateFormVisible(false)}
             title="Update Startup"
-            maxWidth="max-w-4xl"
+            maxWidth="max-w-full"
             >
             <UpdateStartupForm
                 startupId={id} // Pass the startup ID to fetch data inside the form

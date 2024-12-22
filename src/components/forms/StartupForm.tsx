@@ -700,7 +700,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
                   {category.name}
                 </option>
               ))}
-              <option value="Others">Others</option>
+              
             </select>
             {errors.category && (
               <p className="text-xs text-red-500 mt-1">
