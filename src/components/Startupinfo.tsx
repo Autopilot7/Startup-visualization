@@ -62,25 +62,26 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                         </div>
                     </div>
                     </div>
-
-                    <div className="ml-4 flex items-center mb-4">
-                        <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{batch}</span>
-                        <span className="bg-orange-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{phases}</span>
-                        <span className="bg-red-600 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{priority}</span>
-                        <span className="bg-green-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">{status}</span>
-                        {/* <div className="flex items-center gap-6 ml-auto mr-auto">
-                            <span className="bg-yellow-500 text-white text-sm mr-2 px-2.5 py-0.5 rounded">Location</span>
-                         </div> */}
-                    </div>
                     
+                    <div className="flex items-center">
+
+                    <div className="ml-4 flex items-center space-x-2 mb-4">
+                            <span className="bg-yellow-500 text-white text-sm px-2.5 py-0.5 rounded">{batch}</span>
+                            <span className="bg-orange-500 text-white text-sm px-2.5 py-0.5 rounded">{phases}</span>
+                            <span className="bg-red-600 text-white text-sm px-2.5 py-0.5 rounded">{priority}</span>
+                            <span className="bg-green-500 text-white text-sm px-2.5 py-0.5 rounded">{status}</span>
+                            
+                        </div>
+                        <button
+                                onClick={() => setIsUpdateFormVisible(true)}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ml-80"
+                            >
+                                Edit Startup
+                            </button>
+                    </div>
                 </div>
                 
-                <button
-                onClick={() => setIsUpdateFormVisible(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4"
-                >
-                Edit Startup
-                </button>
+                
             </div>
 
             <div className="w-full flex justify-center my-4">
