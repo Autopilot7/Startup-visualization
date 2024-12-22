@@ -462,7 +462,7 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
         );
         console.log("Update Startup Response:", response);
     
-        if (response.status === 201) {
+        if (response.status === 200) {
           toast.success("Startup updated successfully!");
           // Optionally, redirect or reset form here
         } else {
@@ -966,13 +966,6 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
             className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
           >
             Submit
-          </button>
-          <button
-            type="button"
-            onClick={handleBackClick}
-            className="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-red-600"
-          >
-            Back
           </button>
         </div>
         

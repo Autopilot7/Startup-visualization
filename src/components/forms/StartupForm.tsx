@@ -16,6 +16,7 @@ import { endpoints } from '@/app/utils/apis';
 import Select from "react-select"; 
 import { useForm, Controller } from "react-hook-form";
 import Control from "node_modules/react-select/dist/declarations/src/components/Control";
+import { useRouter } from 'next/navigation';
 
 
 interface Member {
@@ -59,8 +60,20 @@ const schema = z.object({
 type Inputs = z.infer<typeof schema>;
 
 const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) => {
+  const {
+    register,
+    getValues,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    control,
+    reset,
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+  });
+  
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-
+  const router = useRouter();
   // Initialize from localStorage
   const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedMemberOptions, setSelectedMemberOptions] = useState<Array<{ value: string; label: string }>>([]);
@@ -81,23 +94,20 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const [priorities, setPriorities] = useState<Array<{ id: string; name: string }>>([]);
   const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
   const [pitchDeckFileName, setPitchDeckFileName] = useState<string | null>(null);
-  // Update localStorage whenever members change
-  // Load members from localStorage on mount
+  // Load saved form data on component mount
   useEffect(() => {
-    const storedMembers = localStorage.getItem('members');
-    if (storedMembers) {
+    const savedData = localStorage.getItem("startupFormData");
+    // Check if there's anything to parse and it's not the literal string "undefined"
+    if (savedData && savedData !== "undefined") {
       try {
-        const parsedMembers: Array<Member> = JSON.parse(storedMembers);
-        // Validate that each member has an id
-        const validMembers = parsedMembers.filter(member => member.id && member.name);
-        setMembers(validMembers);
+        const parsedData = JSON.parse(savedData);
+        reset(parsedData);
       } catch (error) {
-        console.error('Error parsing stored members:', error);
-        localStorage.removeItem('members'); // Clear invalid data
+        console.error("Error parsing saved form data:", error);
       }
     }
-    setMounted(true);
-  }, []);
+  }, [reset]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -166,15 +176,6 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   }, []);
 
   
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    control,
-  } = useForm<Inputs>({
-    resolver: zodResolver(schema),
-  });
   
   useEffect(() => {
     const fetchCategoriesAndMembers = async () => {
@@ -213,13 +214,19 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
   const handleModalClose = () => {
     setIsModalOpen(false);
     setModalContent('');
+    localStorage.setItem("startupFormData", "");
+    router.push('/'); // Redirect to home page
   };
 
   const handleModalConfirm = () => {
     setIsModalOpen(false);
-    // Perform the discard action or any other functionality
+    // Lấy toàn bộ dữ liệu form hiện tại
+    const formData = getValues();
+    // Lưu vào localStorage
+    localStorage.setItem("startupFormData", JSON.stringify(formData));
+    // Chuyển trang
+    router.push("/");
   };
-
   const handleAddMember = (member: { id: string; name: string }) => {
     setMembers((prevMembers) => [
       ...prevMembers,
@@ -242,6 +249,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
       console.log('Pitch Deck File:', file);
     }
   };
+
 
   
   // Pass handleAddMember to CreateMemberForm
@@ -403,6 +411,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           toast.error("An unexpected error occurred.");
         }
       }
+      router.push('/'); // Redirect to home page
     });
 
   if (!mounted) {
