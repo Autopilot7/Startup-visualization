@@ -44,20 +44,62 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     localStorage.setItem('openItems', JSON.stringify(openItems))
   }, [openItems])
 
-  console.log(selectedFilters)
+  // Add useEffect to handle filter changes
+  React.useEffect(() => {
+    // Skip the initial render
+    if (Object.keys(selectedFilters).length === 0) return;
+
+    // Create query parameters from selected filters
+    const queryParams = new URLSearchParams();
+    
+    Object.entries(selectedFilters).forEach(([category, values]) => {
+      if (!values.includes('All') && values.length > 0) {
+        const paramName = category.toLowerCase();
+        queryParams.append(paramName+"_names", values.join(','));
+      }
+    });
+
+    // Get the query string and dispatch event
+    const filterString = queryParams.toString();
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('filterChange', { 
+        detail: filterString 
+      });
+      window.dispatchEvent(event);
+    }
+
+    if (onFilterChange) {
+      onFilterChange(selectedFilters);
+    }
+  }, [selectedFilters, onFilterChange]);
 
   const handleCheckboxChange = (category: string, option: string) => {
     setSelectedFilters(prev => {
       const updatedCategory = prev[category] ? [...prev[category]] : []
+      
+      // If "All" is selected
+      if (option === 'All') {
+        // If All was just selected, make it the only selection
+        if (!updatedCategory.includes('All')) {
+          return { ...prev, [category]: ['All'] }
+        }
+        // If All was unselected, clear the category
+        return { ...prev, [category]: [] }
+      }
+      
+      // If a non-All option was selected
       const optionIndex = updatedCategory.indexOf(option)
       
+      // Remove "All" if it was previously selected
+      const categoryWithoutAll = updatedCategory.filter(opt => opt !== 'All')
+      
       if (optionIndex > -1) {
-        updatedCategory.splice(optionIndex, 1)
+        categoryWithoutAll.splice(categoryWithoutAll.indexOf(option), 1)
       } else {
-        updatedCategory.push(option)
+        categoryWithoutAll.push(option)
       }
 
-      return { ...prev, [category]: updatedCategory }
+      return { ...prev, [category]: categoryWithoutAll }
     })
   }
 
@@ -218,10 +260,19 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                                 id={`${category.name}-${optionIndex}`}
                                 checked={selectedFilters[category.name]?.includes(option)}
                                 onCheckedChange={() => handleCheckboxChange(category.name, option)}
+                                disabled={
+                                  option !== 'All' && 
+                                  selectedFilters[category.name]?.includes('All')
+                                }
                               />
                               <Label 
                                 htmlFor={`${category.name}-${optionIndex}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                                  option !== 'All' && 
+                                  selectedFilters[category.name]?.includes('All') 
+                                    ? 'text-gray-400' 
+                                    : ''
+                                }`}
                               >
                                 {option}
                               </Label>
@@ -235,9 +286,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
               </Accordion>
             </div>
             <div className="p-4 space-y-2">
-              <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
-                Apply
-              </Button>
               <Button 
                 onClick={resetFilters} 
                 variant="outline" 
@@ -287,10 +335,19 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                                   id={`${category.name}-${optionIndex}`}
                                   checked={selectedFilters[category.name]?.includes(option)}
                                   onCheckedChange={() => handleCheckboxChange(category.name, option)}
+                                  disabled={
+                                    option !== 'All' && 
+                                    selectedFilters[category.name]?.includes('All')
+                                  }
                                 />
                                 <Label 
                                   htmlFor={`${category.name}-${optionIndex}`}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                                    option !== 'All' && 
+                                    selectedFilters[category.name]?.includes('All') 
+                                      ? 'text-gray-400' 
+                                      : ''
+                                  }`}
                                 >
                                   {option}
                                 </Label>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell, LineChart, Line } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { fetchStartupsForVisualization } from '@/app/actions'
 
 interface PhaseCount {
   count: number;
@@ -559,36 +560,29 @@ const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
 
 export default function StartupCharts() {
   const [data, setData] = useState<any>(dummyData);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch('https://startupilot.cloud.strixthekiet.me/api/startups/analytics');
-  //       if (!response.ok) {
-  //         throw new Error('Network response was not ok');
-  //       }
-  //       const jsonData = await response.json();
-  //       console.log(jsonData);
-  //       setData(jsonData);
-  //     } catch (err) {
-  //       console.error('Failed to fetch data, using dummy data instead:', err);
-  //       // Keep using dummy data if fetch fails
-  //       setData(dummyData);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchStartupsForVisualization();
+        setData(response);
+      } catch (err) {
+        console.error('Failed to fetch data, using dummy data instead:', err);
+        // Keep using dummy data if fetch fails
+        setData(dummyData);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchData();
-  // }, []);
+    fetchData();
+  }, []);
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-  // console.log("data", data);
-
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  console.log("data", data);
 
   return (
     <div className="space-y-8">

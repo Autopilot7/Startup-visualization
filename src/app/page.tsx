@@ -1,6 +1,6 @@
 "use client";
 import FilterBar from "@/components/dashboard/FilterBar";
-import { Suspense, useContext, useEffect, useState } from "react";
+import { Suspense, useContext, useEffect, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,8 @@ import StartupTable, { StartupTableProps } from "@/components/dashboard/StartupT
 import Title from "@/components/Title";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups, fetchStartupWithFilters } from "@/app/actions";
+import ExportModal from "@/components/dashboard/ExportModal";
+import { filterCategories } from '@/lib/filters';
 
 export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -22,7 +24,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true); // State for loading
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredAndSearchedData, setFilteredAndSearchedData] = useState<StartupTableProps['startups']>([]);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [filters, setFilters] = useState("");
 
   // Initial load of startups
   useEffect(() => {
@@ -41,87 +44,87 @@ export default function Dashboard() {
   }, []);
 
   // Listen for filter apply events
+  const handleFilterApply = useCallback(async (event: CustomEvent) => {
+    setLoading(true);
+    try {
+      const newFilters = event.detail;
+      setFilters(newFilters);
+      
+      // Construct the filter string outside of setState
+      const searchString = searchQuery ? `name=${searchQuery}` : '';
+      const newFiltersAndSearch = newFilters
+        ? searchString 
+          ? `?${newFilters}&${searchString}`
+          : `?${newFilters}`
+        : searchString 
+          ? `?${searchString}` 
+          : '';
+
+      // Fetch data
+      const data = await fetchStartupWithFilters(newFiltersAndSearch);
+      setStartupData(data.startups);
+    } catch (error) {
+      console.error("Error in filter apply handler:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery]);
+
+  // Update the event listener to use 'filterChange' instead of 'applyFilters'
   useEffect(() => {
-    const handleFilterApply = async (event: CustomEvent) => {
-      setLoading(true);
-      try {
-        const data = await fetchStartupWithFilters(event.detail);
-        console.log(data.startups);
-        setStartupData(data.startups);
-      } catch (error) {
-        console.error("Error fetching filtered startups:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    window.addEventListener('applyFilters', ((e: Event) => {
-      handleFilterApply(e as CustomEvent);
-    }) as EventListener);
-
+    window.addEventListener('filterChange', ((e: Event) => handleFilterApply(e as CustomEvent)) as EventListener);
     return () => {
-      window.removeEventListener('applyFilters', ((e: Event) => {
-        handleFilterApply(e as CustomEvent);
-      }) as EventListener);
+      window.removeEventListener('filterChange', ((e: Event) => handleFilterApply(e as CustomEvent)) as EventListener);
     };
-  }, []);
+  }, [handleFilterApply]);
 
   // Function to format filter display
   const formatFilterDisplay = () => {
     const filterStrings = Object.entries(activeFilters)
-      .filter(([_, values]) => values.length > 0 && !values.includes('All'))
-      .map(([category, values]) => `${category}: ${values.join(', ')}`);
+      .filter(([_, values]) => values.length > 0)
+      .map(([category, values]) => {
+        // If "All" is selected, show all options for that category
+        if (values.includes('All')) {
+          const allOptions = filterCategories
+            .find(fc => fc.name === category)
+            ?.options
+            .filter(opt => opt !== 'All') || [];
+          return `${category}: ${allOptions.join(', ')}`;
+        }
+        // Otherwise show selected values
+        return `${category}: ${values.join(', ')}`;
+      });
     
     return filterStrings.length > 0 
       ? filterStrings.join(' • ') 
       : 'No filters applied';
   };
 
-  // Update data when startupData or search changes
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredAndSearchedData(startupData);
-      return;
+  // Handle search input change and fetch filtered results
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
+    const newSearchQuery = event.target.value;
+    setSearchQuery(newSearchQuery);
+
+    try {
+      // Construct filtersAndSearch immediately
+      const searchString = newSearchQuery ? `search=${newSearchQuery}` : '';
+      const newFiltersAndSearch = filters
+        ? searchString 
+          ? `${filters}&${searchString}`
+          : `${filters}`
+        : searchString 
+          ? `${searchString}` 
+          : '';
+      console.log("New filters and search: ", newFiltersAndSearch);
+      // Fetch with the new search immediately
+      const data = await fetchStartupWithFilters(newFiltersAndSearch);
+      setStartupData(data.startups);
+    } catch (error) {
+      console.error("Error fetching filtered startups:", error);
+    } finally {
+      setLoading(false);
     }
-
-    const query = searchQuery.toLowerCase();
-    
-    // Separate startups into priority groups
-    const startsWithQuery: typeof startupData = [];
-    const containsInName: typeof startupData = [];
-    const containsInDescription: typeof startupData = [];
-
-    startupData.forEach(startup => {
-      const name = startup.name.toLowerCase();
-      const shortDesc = startup.short_description.toLowerCase();
-      const longDesc = startup.long_description.toLowerCase();
-      
-      // Check if already added to a higher priority group to avoid duplicates
-      if (name.startsWith(query)) {
-        startsWithQuery.push(startup);
-      } else if (name.includes(query)) {
-        containsInName.push(startup);
-      } else if (
-        shortDesc.includes(query) || 
-        longDesc.includes(query)
-      ) {
-        containsInDescription.push(startup);
-      }
-    });
-
-    // Combine all results in priority order
-    const searchResults = [
-      ...startsWithQuery,
-      ...containsInName,
-      ...containsInDescription
-    ];
-    
-    setFilteredAndSearchedData(searchResults);
-  }, [startupData, searchQuery]);
-
-  // Handle search input change
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
   };
 
   return (
@@ -139,7 +142,10 @@ export default function Dashboard() {
                       <Plus /> Add Startup
                     </Button>
                   </Link>
-                  <Button variant="outline">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsExportModalOpen(true)}
+                  >
                     <Download /> Export
                   </Button>
                 </div>
@@ -154,7 +160,7 @@ export default function Dashboard() {
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {filteredAndSearchedData.length} startup{filteredAndSearchedData.length !== 1 ? 's' : ''} found
+                {startupData.length} startup{startupData.length !== 1 ? 's' : ''} found
               </span>
               <span>•</span>
               <span className="italic">
@@ -198,11 +204,16 @@ export default function Dashboard() {
             <div>Loading...</div>
           ) : (
             <Suspense fallback={<div>Loading...</div>}>
-              <StartupTable startups={filteredAndSearchedData} />
+              <StartupTable startups={startupData} />
             </Suspense>
           )}
         </main>
       </div>
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        filters={formatFilterDisplay()}
+      />
     </div>
   );
 }
