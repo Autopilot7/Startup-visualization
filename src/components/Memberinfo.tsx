@@ -4,6 +4,9 @@ import Badge from "@/components/dashboard/Badge";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { MemberManagement } from "./memberform";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 
 interface Membership {
   id: string;
@@ -48,6 +51,7 @@ export default function Memberinfo({
 }: MemberCardProps) {
   // Only show memberships that have status = true
   const activeMemberships = memberships.filter((m) => m.status);
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <div
@@ -85,8 +89,15 @@ export default function Memberinfo({
         <div className="flex-1 space-y-2 min-w-0">
           {/* Name */}
           <p className="text-2xl md:text-3xl font-bold text-gray-800">
-            {name}
+            {name} 
           </p>
+          {isAuthenticated && (
+            <div className="flex items-center justify-center bg-green-300 text-white font-bold rounded w-10 p-2">
+              <MemberManagement id={id} />
+            </div>
+
+        )}
+          
 
           {/* Email & Phone */}
           <div className="text-sm md:text-base text-gray-700 leading-tight">

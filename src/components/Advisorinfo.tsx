@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { AdvisorManagement } from "./Advisorform";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 
 export interface Mentorship {
   startup: {
@@ -35,6 +38,8 @@ export default function Advisorinfo({
   avatar,
   mentorship = [],
 }: Advisors) {
+
+  const { isAuthenticated } = useContext(AuthContext);
   return (
     <div
       className="
@@ -73,6 +78,12 @@ export default function Advisorinfo({
           <p className="text-2xl md:text-3xl font-bold text-gray-800">
             {name}
           </p>
+          {isAuthenticated && (
+                      <div className="flex items-center justify-center bg-green-300 text-white font-bold rounded w-10 p-2">
+                        <AdvisorManagement id={id} />
+                      </div>
+          
+                )}
 
           {/* Email & Phone */}
           <div className="text-sm md:text-base text-gray-700 leading-tight">

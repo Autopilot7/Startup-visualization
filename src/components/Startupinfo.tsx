@@ -41,7 +41,11 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                     <div className="w-[70rem] bg-white rounded-2xl p-6 flex gap-x-8 mb-1">
                         <img 
                         src={avatar}
-                        className="w-[7rem] rounded-full left-1"
+                        width={100}
+                        height={100}
+
+                        className="flex-shrink-0 max-md:mx-auto h-20 w-20 object-cover rounded-full md:mx-0 md:h-24 md:w-24"
+
                         alt=""
                         />
                         
