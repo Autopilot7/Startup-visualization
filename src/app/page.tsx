@@ -236,18 +236,18 @@ export default function Dashboard() {
                   {sortOrder === 'name' && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => handleSort('batch_name')}
+                  onClick={() => handleSort('batch__name')}
                   className="flex justify-between items-center"
                 >
                   Batch
-                  {sortOrder === 'batch_name' && <Check className="h-4 w-4" />}
+                  {sortOrder === 'batch__name' && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => handleSort('priority_name')}
+                  onClick={() => handleSort('priority__name')}
                   className="flex justify-between items-center"
                 >
                   Priority
-                  {sortOrder === 'priority_name' && <Check className="h-4 w-4" />}
+                  {sortOrder === 'priority__name' && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
