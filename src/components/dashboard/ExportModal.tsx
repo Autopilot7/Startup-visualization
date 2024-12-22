@@ -43,7 +43,7 @@ export default function ExportModal({
   onClose,
   filters,
 }: ExportModalProps) {
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(["name", "all"]);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(["all"]);
   const [exportAll, setExportAll] = useState<boolean>(true);
   const [isExporting, setIsExporting] = useState(false);
 

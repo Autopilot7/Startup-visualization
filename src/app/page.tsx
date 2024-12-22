@@ -45,7 +45,7 @@ export default function Dashboard() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 500); // 500 ms delay for debouncing
+    }, 600); // 600 ms delay for debouncing
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
@@ -107,6 +107,7 @@ export default function Dashboard() {
   const handleFilterApply = useCallback((event: CustomEvent) => {
     const newFilters = event.detail;
     setFilters(newFilters);
+    console.log("Filter applied:", newFilters);
   }, []);
 
   // Listen for the 'filterChange' event

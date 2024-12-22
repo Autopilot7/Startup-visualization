@@ -179,7 +179,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     
     // Trigger filter reset event
     if (typeof window !== 'undefined') {
-      const event = new CustomEvent('applyFilters', { 
+      const event = new CustomEvent('filterChange', { 
         detail: '' 
       });
       window.dispatchEvent(event);
@@ -190,40 +190,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       setIsDialogOpen(false);
     }
   };
-
-  const handleApplyFilters = () => {
-    // Create query parameters from selected filters
-    const queryParams = new URLSearchParams();
-    
-    Object.entries(selectedFilters).forEach(([category, values]) => {
-      // Skip if "All" is selected or no values
-      if (!values.includes('All') && values.length > 0) {
-        // Convert category name to lowercase for API
-        const paramName = category.toLowerCase();
-        // Join multiple values with commas
-        queryParams.append(paramName+"_names", values.join(','));
-      }
-    });
-
-    // Get the query string
-    const filterString = queryParams.toString();
-    
-    // Call the fetchStartupWithFilters function from the parent component
-    if (typeof window !== 'undefined') {
-      const event = new CustomEvent('applyFilters', { 
-        detail: filterString 
-      });
-      window.dispatchEvent(event);
-    }
-
-    if (onFilterChange) {
-      onFilterChange(selectedFilters);
-    }
-
-    if (isSmallScreen) {
-      setIsDialogOpen(false);
-    }
-  }
 
   const toggleAccordionItem = (itemValue: string) => {
     setOpenItems(prev => 
@@ -282,9 +248,9 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
             </div>
             <div className="p-4 space-y-2">
               <Button 
-                onClick={resetFilters} 
-                variant="outline" 
-                className="w-full"
+                onClick={resetFilters}
+                variant="outline"
+                className="w-full hover:bg-gray-100 active:bg-gray-200 transition-colors duration-200"
               >
                 Reset Filters
               </Button>
@@ -351,9 +317,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                 </Accordion>
               </div>
               <div className="p-4 space-y-2">
-                <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
-                  Apply
-                </Button>
                 <Button 
                   onClick={resetFilters} 
                   variant="outline" 
