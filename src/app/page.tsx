@@ -1,6 +1,6 @@
 "use client";
 import FilterBar from "@/components/dashboard/FilterBar";
-import { Suspense, useContext, useEffect, useState } from "react";
+import { Suspense, useContext, useEffect, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,20 +9,73 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Search, Plus, Download } from "lucide-react";
+import { ChevronDown, Search, Plus, Download, Check } from "lucide-react";
 import Link from "next/link";
 import StartupTable, { StartupTableProps } from "@/components/dashboard/StartupTable";
 import Title from "@/components/Title";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups, fetchStartupWithFilters } from "@/app/actions";
+import ExportModal from "@/components/dashboard/ExportModal";
+import { filterCategories } from "@/lib/filters";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext);
-  const [startupData, setStartupData] = useState<StartupTableProps['startups']>([]);
-  const [loading, setLoading] = useState(true); // State for loading
+
+  // Startups data, loading states, and modal
+  const [startupData, setStartupData] = useState<StartupTableProps["startups"]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Filter states
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
+  const [filters, setFilters] = useState("");
+
+  // Search states
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredAndSearchedData, setFilteredAndSearchedData] = useState<StartupTableProps['startups']>([]);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Sorting
+  const [sortOrder, setSortOrder] = useState("name");
+
+  // For debug or export
+  const [finalFilterString, setFinalFilterString] = useState("");
+
+  // Debounce search changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 600); // 600 ms delay for debouncing
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Combined data fetch function
+  const fetchCombinedData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const queryParts: string[] = [];
+      if (filters) queryParts.push(filters);
+      if (debouncedSearchQuery) queryParts.push(`name=${debouncedSearchQuery}`);
+      if (sortOrder) queryParts.push(`ordering=${sortOrder}`);
+
+      const fullQueryString = queryParts.join("&");
+      setFinalFilterString(fullQueryString);
+
+      const data = await fetchStartupWithFilters(fullQueryString);
+      setStartupData(data.startups);
+    } catch (error) {
+      toast.error(`Error fetching data: ${error}`);
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, debouncedSearchQuery, sortOrder]);
+
+  // Use a single effect to watch filter, debounced search, and sort changes
+  useEffect(() => {
+    fetchCombinedData();
+  }, [fetchCombinedData]);
 
   // Initial load of startups
   useEffect(() => {
@@ -40,88 +93,48 @@ export default function Dashboard() {
     loadStartups();
   }, []);
 
-  // Listen for filter apply events
-  useEffect(() => {
-    const handleFilterApply = async (event: CustomEvent) => {
-      setLoading(true);
-      try {
-        const data = await fetchStartupWithFilters(event.detail);
-        console.log(data.startups);
-        setStartupData(data.startups);
-      } catch (error) {
-        console.error("Error fetching filtered startups:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Handle sorting by just updating state
+  const handleSort = (param: string) => {
+    setSortOrder(param);
+  };
 
-    window.addEventListener('applyFilters', ((e: Event) => {
-      handleFilterApply(e as CustomEvent);
-    }) as EventListener);
+  // Handle search by just updating local search state
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
 
-    return () => {
-      window.removeEventListener('applyFilters', ((e: Event) => {
-        handleFilterApply(e as CustomEvent);
-      }) as EventListener);
-    };
+  // Listen for filter change events
+  const handleFilterApply = useCallback((event: CustomEvent) => {
+    const newFilters = event.detail;
+    setFilters(newFilters);
+    console.log("Filter applied:", newFilters);
   }, []);
+
+  // Listen for the 'filterChange' event
+  useEffect(() => {
+    const wrappedListener = (e: Event) => handleFilterApply(e as CustomEvent);
+    window.addEventListener("filterChange", wrappedListener as EventListener);
+    return () => {
+      window.removeEventListener("filterChange", wrappedListener as EventListener);
+    };
+  }, [handleFilterApply]);
 
   // Function to format filter display
   const formatFilterDisplay = () => {
     const filterStrings = Object.entries(activeFilters)
-      .filter(([_, values]) => values.length > 0 && !values.includes('All'))
-      .map(([category, values]) => `${category}: ${values.join(', ')}`);
-    
-    return filterStrings.length > 0 
-      ? filterStrings.join(' • ') 
-      : 'No filters applied';
-  };
+      .filter(([_, values]) => values.length > 0)
+      .map(([category, values]) => {
+        if (values.includes("All")) {
+          const allOptions =
+            filterCategories
+              .find((fc) => fc.name === category)
+              ?.options.filter((opt) => opt !== "All") || [];
+          return `${category}: ${allOptions.join(", ")}`;
+        }
+        return `${category}: ${values.join(", ")}`;
+      });
 
-  // Update data when startupData or search changes
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredAndSearchedData(startupData);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    
-    // Separate startups into priority groups
-    const startsWithQuery: typeof startupData = [];
-    const containsInName: typeof startupData = [];
-    const containsInDescription: typeof startupData = [];
-
-    startupData.forEach(startup => {
-      const name = startup.name.toLowerCase();
-      const shortDesc = startup.short_description.toLowerCase();
-      const longDesc = startup.long_description.toLowerCase();
-      
-      // Check if already added to a higher priority group to avoid duplicates
-      if (name.startsWith(query)) {
-        startsWithQuery.push(startup);
-      } else if (name.includes(query)) {
-        containsInName.push(startup);
-      } else if (
-        shortDesc.includes(query) || 
-        longDesc.includes(query)
-      ) {
-        containsInDescription.push(startup);
-      }
-    });
-
-    // Combine all results in priority order
-    const searchResults = [
-      ...startsWithQuery,
-      ...containsInName,
-      ...containsInDescription
-    ];
-    
-    setFilteredAndSearchedData(searchResults);
-  }, [startupData, searchQuery]);
-
-  // Handle search input change
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+    return filterStrings.length > 0 ? filterStrings.join(" • ") : "No filters applied";
   };
 
   return (
@@ -139,37 +152,33 @@ export default function Dashboard() {
                       <Plus /> Add Startup
                     </Button>
                   </Link>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => setIsExportModalOpen(true)}>
                     <Download /> Export
                   </Button>
                 </div>
               )}
             </div>
             <div className="flex-1 flex sm:justify-end items-center">
-              {isAuthenticated && (
-                <span className="text-gray-600 text-xl">Welcome, Elab!</span>
-              )}
+              {isAuthenticated && <span className="text-gray-600 text-xl">Welcome, Elab!</span>}
             </div>
           </div>
+
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {filteredAndSearchedData.length} startup{filteredAndSearchedData.length !== 1 ? 's' : ''} found
+                {startupData.length} startup{startupData.length !== 1 ? "s" : ""} found
               </span>
               <span>•</span>
-              <span className="italic">
-                {formatFilterDisplay()}
-              </span>
+              <span className="italic">{formatFilterDisplay()}</span>
               {searchQuery && (
                 <>
                   <span>•</span>
-                  <span className="italic">
-                    Search: "{searchQuery}"
-                  </span>
+                  <span className="italic">Search: "{searchQuery}"</span>
                 </>
               )}
             </div>
           </div>
+
           <div className="flex flex-row gap-4 mb-6">
             <div className="relative flex-grow w-full">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -181,6 +190,7 @@ export default function Dashboard() {
                 onChange={handleSearchChange}
               />
             </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="font-normal h-10 w-auto">
@@ -188,21 +198,46 @@ export default function Dashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem>Alphabetically</DropdownMenuItem>
-                <DropdownMenuItem>Batch</DropdownMenuItem>
-                <DropdownMenuItem>Priority</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleSort("name")}
+                  className="flex justify-between items-center"
+                >
+                  Alphabetically
+                  {sortOrder === "name" && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleSort("batch__name")}
+                  className="flex justify-between items-center"
+                >
+                  Batch
+                  {sortOrder === "batch__name" && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleSort("priority__name")}
+                  className="flex justify-between items-center"
+                >
+                  Priority
+                  {sortOrder === "priority__name" && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           {loading ? (
             <div>Loading...</div>
           ) : (
             <Suspense fallback={<div>Loading...</div>}>
-              <StartupTable startups={filteredAndSearchedData} />
+              <StartupTable startups={startupData} />
             </Suspense>
           )}
         </main>
       </div>
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        filters={finalFilterString}
+      />
     </div>
   );
 }

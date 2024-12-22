@@ -1,8 +1,9 @@
-// app/members/page.tsx
-
 import { fetchAllAdvisors, fetchAllMembers } from "../actions"; // Adjust to your actual path
 import MemberCard from "@/components/Membercard"; // or wherever your MemberCard is located
 import AdvisorCard from "@/components/Advisorcard"; // or wherever your MemberCard is located
+import { MemberManagement } from "@/components/memberform"; // Adjust to your actual path
+
+
 
 export default async function MembersPage() {
   // Server Components can call server actions directly

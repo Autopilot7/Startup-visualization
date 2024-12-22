@@ -44,20 +44,62 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     localStorage.setItem('openItems', JSON.stringify(openItems))
   }, [openItems])
 
-  console.log(selectedFilters)
+  // Add useEffect to handle filter changes
+  React.useEffect(() => {
+    // Skip the initial render
+    if (Object.keys(selectedFilters).length === 0) return;
+
+    // Create query parameters from selected filters
+    const queryParams = new URLSearchParams();
+    
+    Object.entries(selectedFilters).forEach(([category, values]) => {
+      if (!values.includes('All') && values.length > 0) {
+        const paramName = category.toLowerCase();
+        queryParams.append(paramName+"_names", values.join(','));
+      }
+    });
+
+    // Get the query string and dispatch event
+    const filterString = queryParams.toString();
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('filterChange', { 
+        detail: filterString 
+      });
+      window.dispatchEvent(event);
+    }
+
+    if (onFilterChange) {
+      onFilterChange(selectedFilters);
+    }
+  }, [selectedFilters, onFilterChange]);
 
   const handleCheckboxChange = (category: string, option: string) => {
     setSelectedFilters(prev => {
       const updatedCategory = prev[category] ? [...prev[category]] : []
+      
+      // If "All" is selected
+      if (option === 'All') {
+        // If All was just selected, add it to existing selections
+        if (!updatedCategory.includes('All')) {
+          return { ...prev, [category]: ['All', ...updatedCategory] }
+        }
+        // If All was unselected, remove it but keep other selections
+        return { 
+          ...prev, 
+          [category]: updatedCategory.filter(opt => opt !== 'All')
+        }
+      }
+      
+      // If a non-All option was selected
       const optionIndex = updatedCategory.indexOf(option)
       
+      // Keep "All" in the array if it exists, just add/remove the new option
       if (optionIndex > -1) {
-        updatedCategory.splice(optionIndex, 1)
+        const newCategory = updatedCategory.filter(opt => opt !== option)
+        return { ...prev, [category]: newCategory }
       } else {
-        updatedCategory.push(option)
+        return { ...prev, [category]: [...updatedCategory, option] }
       }
-
-      return { ...prev, [category]: updatedCategory }
     })
   }
 
@@ -137,7 +179,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     
     // Trigger filter reset event
     if (typeof window !== 'undefined') {
-      const event = new CustomEvent('applyFilters', { 
+      const event = new CustomEvent('filterChange', { 
         detail: '' 
       });
       window.dispatchEvent(event);
@@ -148,40 +190,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       setIsDialogOpen(false);
     }
   };
-
-  const handleApplyFilters = () => {
-    // Create query parameters from selected filters
-    const queryParams = new URLSearchParams();
-    
-    Object.entries(selectedFilters).forEach(([category, values]) => {
-      // Skip if "All" is selected or no values
-      if (!values.includes('All') && values.length > 0) {
-        // Convert category name to lowercase for API
-        const paramName = category.toLowerCase();
-        // Join multiple values with commas
-        queryParams.append(paramName+"_names", values.join(','));
-      }
-    });
-
-    // Get the query string
-    const filterString = queryParams.toString();
-    
-    // Call the fetchStartupWithFilters function from the parent component
-    if (typeof window !== 'undefined') {
-      const event = new CustomEvent('applyFilters', { 
-        detail: filterString 
-      });
-      window.dispatchEvent(event);
-    }
-
-    if (onFilterChange) {
-      onFilterChange(selectedFilters);
-    }
-
-    if (isSmallScreen) {
-      setIsDialogOpen(false);
-    }
-  }
 
   const toggleAccordionItem = (itemValue: string) => {
     setOpenItems(prev => 
@@ -218,6 +226,10 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                                 id={`${category.name}-${optionIndex}`}
                                 checked={selectedFilters[category.name]?.includes(option)}
                                 onCheckedChange={() => handleCheckboxChange(category.name, option)}
+                                disabled={
+                                  option !== 'All' && 
+                                  selectedFilters[category.name]?.includes('All')
+                                }
                               />
                               <Label 
                                 htmlFor={`${category.name}-${optionIndex}`}
@@ -235,13 +247,10 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
               </Accordion>
             </div>
             <div className="p-4 space-y-2">
-              <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
-                Apply
-              </Button>
               <Button 
-                onClick={resetFilters} 
-                variant="outline" 
-                className="w-full"
+                onClick={resetFilters}
+                variant="outline"
+                className="w-full hover:bg-gray-100 active:bg-gray-200 transition-colors duration-200"
               >
                 Reset Filters
               </Button>
@@ -287,6 +296,10 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                                   id={`${category.name}-${optionIndex}`}
                                   checked={selectedFilters[category.name]?.includes(option)}
                                   onCheckedChange={() => handleCheckboxChange(category.name, option)}
+                                  disabled={
+                                    option !== 'All' && 
+                                    selectedFilters[category.name]?.includes('All')
+                                  }
                                 />
                                 <Label 
                                   htmlFor={`${category.name}-${optionIndex}`}
@@ -304,9 +317,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                 </Accordion>
               </div>
               <div className="p-4 space-y-2">
-                <Button onClick={handleApplyFilters} className="w-full bg-black hover:bg-slate-800 active:bg-slate-700">
-                  Apply
-                </Button>
                 <Button 
                   onClick={resetFilters} 
                   variant="outline" 

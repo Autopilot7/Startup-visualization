@@ -2,7 +2,6 @@
 import { StartupTableProps } from '@/components/dashboard/StartupTable';
 import { Startup } from '@/components/dashboard/StartupCard';
 
-
 export async function fetchStartups(): Promise<StartupTableProps> {
     try {
         const response = await fetch(
@@ -38,7 +37,7 @@ export async function fetchStartupWithFilters(filters: any): Promise<StartupTabl
             `https://startupilot.cloud.strixthekiet.me/api/startups/?${filters}`
         );
         const data = await response.json();
-        console.log("Filters: ", filters);
+        console.log("Fetch startups with filters: ", filters);
         
         const startups = data.results.map((item: any) => ({
             id: item.id || '',
@@ -237,5 +236,64 @@ export async function fetchAdvisorById(id: string): Promise<Advisors> {
     return advisor;
   } catch (error) {
     throw new Error(`Error fetching advisor by ID: ${error}`);
+  }
+}
+
+export async function fetchStartupsForVisualization(): Promise<any> {
+  try {
+    const response = await fetch('https://startupilot.cloud.strixthekiet.me/api/startups/analytics');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const jsonData = await response.json();
+    return jsonData;
+  } catch (err) {
+    throw new Error(`Failed to fetch data, using dummy data instead: ${err}`);
+  }
+}
+
+export async function exportStartups(columns: string[], filters: string, exportAll: boolean): Promise<{
+  ok: boolean;
+  status: number;
+  data: ArrayBuffer;
+}> {
+  let apiEndpoint = 'https://startupilot.cloud.strixthekiet.me/api/startups/export';
+  
+  console.log("Exporting columns:", columns);
+  
+  try {
+    let finalUrl = apiEndpoint;
+    
+    if (!exportAll) {
+      if (filters.length > 0 && columns.length > 0 && !columns.includes("all")) {
+        finalUrl = `${apiEndpoint}?${filters}&columns=name,${columns.join(',')}`;
+      }
+      else if (filters.length > 0) {
+        finalUrl = `${apiEndpoint}?${filters}`;
+      }
+      else if (columns.length > 0 && !columns.includes("all")) {
+        finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
+      }
+    }
+    else if (filters.length > 0) {
+      finalUrl = `${apiEndpoint}?${filters}`;
+    }
+    
+    console.log("API Endpoint: ", finalUrl);
+    const response = await fetch(finalUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Export failed with status: ${response.status}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: arrayBuffer
+    };
+  } catch (err) {
+    throw new Error(`Failed to export startups: ${err}`);
   }
 }
