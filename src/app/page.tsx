@@ -16,47 +16,66 @@ import Title from "@/components/Title";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups, fetchStartupWithFilters } from "@/app/actions";
 import ExportModal from "@/components/dashboard/ExportModal";
-import { filterCategories } from '@/lib/filters';
+import { filterCategories } from "@/lib/filters";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext);
-  const [startupData, setStartupData] = useState<StartupTableProps['startups']>([]);
-  const [loading, setLoading] = useState(true); // State for loading
-  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
-  const [searchQuery, setSearchQuery] = useState("");
+
+  // Startups data, loading states, and modal
+  const [startupData, setStartupData] = useState<StartupTableProps["startups"]>([]);
+  const [loading, setLoading] = useState(true);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Filter states
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const [filters, setFilters] = useState("");
+
+  // Search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Sorting
   const [sortOrder, setSortOrder] = useState("name");
+
+  // For debug or export
   const [finalFilterString, setFinalFilterString] = useState("");
 
+  // Debounce search changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500 ms delay for debouncing
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
-  // Sorting handler
-  const handleSort = async (param: string) => {
-    setLoading(true);
+  // Combined data fetch function
+  const fetchCombinedData = useCallback(async () => {
     try {
-      // Construct the query string with both filters and sorting
-      const searchString = searchQuery ? `name=${searchQuery}` : '';
-      const orderingParam = `ordering=${param}`;
+      setLoading(true);
 
-      const queryString = [
-        filters ? filters : '',
-        searchString,
-        orderingParam
-      ].filter(Boolean).join('&');
+      const queryParts: string[] = [];
+      if (filters) queryParts.push(filters);
+      if (debouncedSearchQuery) queryParts.push(`name=${debouncedSearchQuery}`);
+      if (sortOrder) queryParts.push(`ordering=${sortOrder}`);
 
-      setFinalFilterString(queryString);
+      const fullQueryString = queryParts.join("&");
+      setFinalFilterString(fullQueryString);
 
-      const data = await fetchStartupWithFilters(queryString);
+      const data = await fetchStartupWithFilters(fullQueryString);
       setStartupData(data.startups);
-      setSortOrder(param);
     } catch (error) {
-      toast.error(`Error in sort handler: ${error}`);
-      console.error(`Error in sort handler: ${error}`);
+      toast.error(`Error fetching data: ${error}`);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  }
+  }, [filters, debouncedSearchQuery, sortOrder]);
+
+  // Use a single effect to watch filter, debounced search, and sort changes
+  useEffect(() => {
+    fetchCombinedData();
+  }, [fetchCombinedData]);
 
   // Initial load of startups
   useEffect(() => {
@@ -74,39 +93,28 @@ export default function Dashboard() {
     loadStartups();
   }, []);
 
-  // Listen for filter apply events
-  const handleFilterApply = useCallback(async (event: CustomEvent) => {
-    setLoading(true);
-    try {
-      const newFilters = event.detail;
-      setFilters(newFilters);
-      
-      // Construct the filter string outside of setState
-      const searchString = searchQuery ? `name=${searchQuery}` : '';
-      const newFiltersAndSearch = newFilters
-        ? searchString 
-          ? `${newFilters}&${searchString}`
-          : `${newFilters}`
-        : searchString 
-          ? `${searchString}` 
-          : '';
+  // Handle sorting by just updating state
+  const handleSort = (param: string) => {
+    setSortOrder(param);
+  };
 
-      // Fetch data
-      setFinalFilterString(newFiltersAndSearch);
-      const data = await fetchStartupWithFilters(newFiltersAndSearch);
-      setStartupData(data.startups);
-    } catch (error) {
-      console.error("Error in filter apply handler:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery]);
+  // Handle search by just updating local search state
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
 
-  // Update the event listener to use 'filterChange' instead of 'applyFilters'
+  // Listen for filter change events
+  const handleFilterApply = useCallback((event: CustomEvent) => {
+    const newFilters = event.detail;
+    setFilters(newFilters);
+  }, []);
+
+  // Listen for the 'filterChange' event
   useEffect(() => {
-    window.addEventListener('filterChange', ((e: Event) => handleFilterApply(e as CustomEvent)) as EventListener);
+    const wrappedListener = (e: Event) => handleFilterApply(e as CustomEvent);
+    window.addEventListener("filterChange", wrappedListener as EventListener);
     return () => {
-      window.removeEventListener('filterChange', ((e: Event) => handleFilterApply(e as CustomEvent)) as EventListener);
+      window.removeEventListener("filterChange", wrappedListener as EventListener);
     };
   }, [handleFilterApply]);
 
@@ -115,51 +123,18 @@ export default function Dashboard() {
     const filterStrings = Object.entries(activeFilters)
       .filter(([_, values]) => values.length > 0)
       .map(([category, values]) => {
-        // If "All" is selected, show all options for that category
-        if (values.includes('All')) {
-          const allOptions = filterCategories
-            .find(fc => fc.name === category)
-            ?.options
-            .filter(opt => opt !== 'All') || [];
-          return `${category}: ${allOptions.join(', ')}`;
+        if (values.includes("All")) {
+          const allOptions =
+            filterCategories
+              .find((fc) => fc.name === category)
+              ?.options.filter((opt) => opt !== "All") || [];
+          return `${category}: ${allOptions.join(", ")}`;
         }
-        // Otherwise show selected values
-        return `${category}: ${values.join(', ')}`;
+        return `${category}: ${values.join(", ")}`;
       });
-    
-    return filterStrings.length > 0 
-      ? filterStrings.join(' • ') 
-      : 'No filters applied';
+
+    return filterStrings.length > 0 ? filterStrings.join(" • ") : "No filters applied";
   };
-
-  // Handle search input change and fetch filtered results
-  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const newSearchQuery = event.target.value;
-    setSearchQuery(newSearchQuery);
-
-    try {
-      // Construct filtersAndSearch immediately
-      const searchString = newSearchQuery ? `search=${newSearchQuery}` : '';
-      const newFiltersAndSearch = filters
-        ? searchString 
-          ? `${filters}&${searchString}`
-          : `${filters}`
-        : searchString 
-          ? `${searchString}` 
-          : '';
-      console.log("New filters and search: ", newFiltersAndSearch);
-      // Fetch with the new search immediately
-      setFinalFilterString(newFiltersAndSearch);
-      const data = await fetchStartupWithFilters(newFiltersAndSearch);
-      setStartupData(data.startups);
-    } catch (error) {
-      console.error("Error fetching filtered startups:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   return (
     <div className="flex flex-col">
@@ -176,40 +151,33 @@ export default function Dashboard() {
                       <Plus /> Add Startup
                     </Button>
                   </Link>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsExportModalOpen(true)}
-                  >
+                  <Button variant="outline" onClick={() => setIsExportModalOpen(true)}>
                     <Download /> Export
                   </Button>
                 </div>
               )}
             </div>
             <div className="flex-1 flex sm:justify-end items-center">
-              {isAuthenticated && (
-                <span className="text-gray-600 text-xl">Welcome, Elab!</span>
-              )}
+              {isAuthenticated && <span className="text-gray-600 text-xl">Welcome, Elab!</span>}
             </div>
           </div>
+
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {startupData.length} startup{startupData.length !== 1 ? 's' : ''} found
+                {startupData.length} startup{startupData.length !== 1 ? "s" : ""} found
               </span>
               <span>•</span>
-              <span className="italic">
-                {formatFilterDisplay()}
-              </span>
+              <span className="italic">{formatFilterDisplay()}</span>
               {searchQuery && (
                 <>
                   <span>•</span>
-                  <span className="italic">
-                    Search: "{searchQuery}"
-                  </span>
+                  <span className="italic">Search: "{searchQuery}"</span>
                 </>
               )}
             </div>
           </div>
+
           <div className="flex flex-row gap-4 mb-6">
             <div className="relative flex-grow w-full">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -221,6 +189,7 @@ export default function Dashboard() {
                 onChange={handleSearchChange}
               />
             </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="font-normal h-10 w-auto">
@@ -228,30 +197,31 @@ export default function Dashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem 
-                  onClick={() => handleSort('name')}
+                <DropdownMenuItem
+                  onClick={() => handleSort("name")}
                   className="flex justify-between items-center"
                 >
                   Alphabetically
-                  {sortOrder === 'name' && <Check className="h-4 w-4" />}
+                  {sortOrder === "name" && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => handleSort('batch__name')}
+                <DropdownMenuItem
+                  onClick={() => handleSort("batch__name")}
                   className="flex justify-between items-center"
                 >
                   Batch
-                  {sortOrder === 'batch__name' && <Check className="h-4 w-4" />}
+                  {sortOrder === "batch__name" && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => handleSort('priority__name')}
+                <DropdownMenuItem
+                  onClick={() => handleSort("priority__name")}
                   className="flex justify-between items-center"
                 >
                   Priority
-                  {sortOrder === 'priority__name' && <Check className="h-4 w-4" />}
+                  {sortOrder === "priority__name" && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           {loading ? (
             <div>Loading...</div>
           ) : (
@@ -261,6 +231,7 @@ export default function Dashboard() {
           )}
         </main>
       </div>
+
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
