@@ -40,14 +40,13 @@ export default function Startupinfo() {
               category={startup.category}
               status={startup.status}
               priority={startup.priority}
-              phase={startup.phase}
+              phases={[startup.phase]}
               batch={startup.batch}
               id={startup.id}
               email={startup.email}
-              linkedin={startup.linkedin}
-              facebook={startup.facebook}
-              pitchdeck={startup.pitchdeck}           
-              />
+              linkedin_url={startup.linkedin}
+              facebook_url={startup.facebook}
+              pitch_deck={startup.pitchdeck} memberships={[]} advisors={[]} notes={[]} location={""}              />
           ))}
         </div>
     </div>
