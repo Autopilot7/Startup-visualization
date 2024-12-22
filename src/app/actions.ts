@@ -2,7 +2,6 @@
 import { StartupTableProps } from '@/components/dashboard/StartupTable';
 import { Startup } from '@/components/dashboard/StartupCard';
 
-
 export async function fetchStartups(): Promise<StartupTableProps> {
     try {
         const response = await fetch(
@@ -259,19 +258,25 @@ export async function exportStartups(columns: string[], filters: string, exportA
   data: ArrayBuffer;
 }> {
   let apiEndpoint = 'https://startupilot.cloud.strixthekiet.me/api/startups/export';
+  
+  console.log("Exporting columns:", columns);
+  
   try {
     let finalUrl = apiEndpoint;
     
     if (!exportAll) {
-      if (filters && columns.length > 0) {
-        finalUrl = `${apiEndpoint}?${filters}&columns=${columns.join(',')}`;
+      if (filters.length > 0 && columns.length > 0 && !columns.includes("all")) {
+        finalUrl = `${apiEndpoint}?${filters}&columns=name,${columns.join(',')}`;
       }
-      else if (filters) {
+      else if (filters.length > 0) {
         finalUrl = `${apiEndpoint}?${filters}`;
       }
-      else if (columns.length > 0) {
-        finalUrl = `${apiEndpoint}?columns=${columns.join(',')}`;
+      else if (columns.length > 0 && !columns.includes("all")) {
+        finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
       }
+    }
+    else if (filters.length > 0) {
+      finalUrl = `${apiEndpoint}?${filters}`;
     }
     
     console.log("API Endpoint: ", finalUrl);

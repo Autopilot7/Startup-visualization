@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -20,7 +22,7 @@ export interface ExportModalProps {
   filters: string;
 }
 
-const AVAILABLE_COLUMNS = [
+export const AVAILABLE_COLUMNS = [
   { id: "short_description", label: "Short Description"},
   { id: "description", label: "Description" },
   { id: "email", label: "Email" },
@@ -100,7 +102,7 @@ export default function ExportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Export Startups</DialogTitle>
         </DialogHeader>
