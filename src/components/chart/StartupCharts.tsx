@@ -25,8 +25,8 @@ interface PhasesCount {
 }
 
 interface BatchCategory {
-  active: number;
-  inactive: number;
+  Active: number;
+  Inactive: number;
 }
 
 interface BatchData {
@@ -50,82 +50,82 @@ interface BatchesCount {
 const dummyData = {
   batches_count: {
     'AY 22-23': {
-      Technology: { active: 15, inactive: 5 },
-      Travel: { active: 8, inactive: 2 },
-      Healthcare: { active: 12, inactive: 3 },
-      Finance: { active: 6, inactive: 2 },
-      Education: { active: 10, inactive: 2 },
-      'Social Media': { active: 5, inactive: 2 },
-      Others: { active: 3, inactive: 2 },
-      Total: { active: 59, inactive: 16 }
+      Technology: { Active: 15, Inactive: 5 },
+      Travel: { Active: 8, Inactive: 2 },
+      Healthcare: { Active: 12, Inactive: 3 },
+      Finance: { Active: 6, Inactive: 2 },
+      Education: { Active: 10, Inactive: 2 },
+      'Social Media': { Active: 5, Inactive: 2 },
+      Others: { Active: 3, Inactive: 2 },
+      Total: { Active: 59, Inactive: 16 }
     },
     'AY 23-24': {
-      Technology: { active: 20, inactive: 5 },
-      Travel: { active: 12, inactive: 3 },
-      Healthcare: { active: 15, inactive: 3 },
-      Finance: { active: 8, inactive: 2 },
-      Education: { active: 13, inactive: 3 },
-      'Social Media': { active: 7, inactive: 2 },
-      Others: { active: 5, inactive: 2 },
-      Total: { active: 70, inactive: 17 }
+      Technology: { Active: 20, Inactive: 5 },
+      Travel: { Active: 12, Inactive: 3 },
+      Healthcare: { Active: 15, Inactive: 3 },
+      Finance: { Active: 8, Inactive: 2 },
+      Education: { Active: 13, Inactive: 3 },
+      'Social Media': { Active: 7, Inactive: 2 },
+      Others: { Active: 5, Inactive: 2 },
+      Total: { Active: 70, Inactive: 17 }
     },
     'AY 24-25': {
-      Technology: { active: 25, inactive: 5 },
-      Travel: { active: 16, inactive: 4 },
-      Healthcare: { active: 18, inactive: 4 },
-      Finance: { active: 10, inactive: 2 },
-      Education: { active: 17, inactive: 3 },
-      'Social Media': { active: 9, inactive: 2 },
-      Others: { active: 6, inactive: 2 },
-      Total: { active: 80, inactive: 18 }
+      Technology: { Active: 25, Inactive: 5 },
+      Travel: { Active: 16, Inactive: 4 },
+      Healthcare: { Active: 18, Inactive: 4 },
+      Finance: { Active: 10, Inactive: 2 },
+      Education: { Active: 17, Inactive: 3 },
+      'Social Media': { Active: 9, Inactive: 2 },
+      Others: { Active: 6, Inactive: 2 },
+      Total: { Active: 80, Inactive: 18 }
     },
     Total: {
-      Technology: { active: 60, inactive: 15 },
-      Travel: { active: 36, inactive: 9 },
-      Healthcare: { active: 45, inactive: 9 },
-      Finance: { active: 24, inactive: 6 },
-      Education: { active: 40, inactive: 7 },
-      'Social Media': { active: 21, inactive: 6 },
-      Others: { active: 14, inactive: 6 },
-      Total: { active: 240, inactive: 53 }
+      Technology: { Active: 60, Inactive: 15 },
+      Travel: { Active: 36, Inactive: 9 },
+      Healthcare: { Active: 45, Inactive: 9 },
+      Finance: { Active: 24, Inactive: 6 },
+      Education: { Active: 40, Inactive: 7 },
+      'Social Media': { Active: 21, Inactive: 6 },
+      Others: { Active: 14, Inactive: 6 },
+      Total: { Active: 240, Inactive: 53 }
     }
   },
   priority_count: {
     P0: { 
-      Technology: { count: 50},
-      Travel: { count: 30},
-      Healthcare: { count: 40},
-      Finance: { count: 25},
-      Education: { count: 35},
-      'Social Media': { count: 20},
-      Others: { count: 15},
+      Technology: 50,
+      Travel: 30,
+      Healthcare: 40,
+      Finance: 25,
+      Education: 35,
+      'Social Media': 20,
+      Others: 15,
     },
     P1: { 
-      Technology: { count: 100},
-      Travel: { count: 60},
-      Healthcare: { count: 80},
-      Finance: { count: 50},
-      Education: { count: 70},
-      'Social Media': { count: 40},
-      Others: { count: 30},
+      Technology: 100,
+      Travel: 60,
+      Healthcare: 80,
+      Finance: 50,
+      Education: 70,
+      'Social Media': 40,
+      Others: 30,
     },
     P2: { 
-      Technology: { count: 50},
-      Travel: { count: 30},
-      Healthcare: { count: 40},
-      Finance: { count: 25},
-      Education: { count: 35},
-      'Social Media': { count: 20},
-      Others: { count: 15},
+      Technology: 50,
+      Travel: 30,
+      Healthcare: 40,
+      Finance: 25,
+      Education: 35,
+      'Social Media': 20,
+      Others: 15,
     },
     Total: {
-      Technology: { count: 50},
-      Travel: { count: 30},
-      Healthcare: { count: 40},
-      Finance: { count: 25},
-      Education: { count: 35},
-      'Social Media': { count: 20},
-      Others: { count: 15},
+      Technology: 50,
+      Travel: 30,
+      Healthcare: 40,
+      Finance: 25,
+      Education: 35,
+      'Social Media': 20,
+      Others: 15,
     },
   },
   phases_count: {
@@ -192,16 +192,16 @@ const COLORS = [
   "#9c27b0", "#2196f3", "#4caf50", "#ff9800", "#f44336"
 ];
 
-const CustomPieChartTooltip = ({ active, payload, label }: { active?: boolean, payload?: Array<any>, label?: string }) => {
-  if (active && payload && payload.length) {
+const CustomPieChartTooltip = ({ Active, payload, label }: { Active?: boolean, payload?: Array<any>, label?: string }) => {
+  if (Active && payload && payload.length) {
     return (
       <div className="bg-white p-2 border rounded shadow">
         <p className="font-bold">{label}</p>
         {payload.map((entry, index) => (
           <p key={index}>
             <span style={{ color: entry.color }} className="font-bold">{entry.name}</span>: {entry.value} startups
-            {entry.payload.active && <span className="text-green-600"> ({entry.payload.active} active</span>}
-            {entry.payload.inactive && <span className="text-gray-600">, {entry.payload.inactive} inactive)</span>}
+            {entry.payload.Active && <span className="text-green-600"> ({entry.payload.Active} Active</span>}
+            {entry.payload.Inactive && <span className="text-gray-600">, {entry.payload.Inactive} Inactive)</span>}
           </p>
         ))}
       </div>
@@ -210,8 +210,8 @@ const CustomPieChartTooltip = ({ active, payload, label }: { active?: boolean, p
   return null
 }
 
-const CustomBarChartTooltip = ({ active, payload, label }: { active?: boolean, payload?: Array<any>, label?: string }) => {
-  if (active && payload && payload.length) {
+const CustomBarChartTooltip = ({ Active, payload, label }: { Active?: boolean, payload?: Array<any>, label?: string }) => {
+  if (Active && payload && payload.length) {
     return (
       <div className="bg-white p-2 border rounded shadow">
         <p className="font-bold">{label}</p>
@@ -230,20 +230,22 @@ const CategoriesPieChart = ({ startupData }: { startupData: any }) => {
   const [selectedBatch, setSelectedBatch] = useState<keyof BatchesCount>('Total');
   const batches = Object.keys(startupData.batches_count) as Array<keyof BatchesCount>;
 
-  console.log("selectedBatch", selectedBatch);
-  console.log("batches keys", batches);
-  console.log("batches data", startupData.batches_count);
-  console.log("batches_count.Total", startupData.batches_count['Total']);
-  console.log("startupData", startupData.batches_count[selectedBatch]);
+  // console.log("selectedBatch", selectedBatch);
+  // console.log("batches keys", batches);
+  // console.log("batches data", startupData.batches_count);
+  // console.log("batches_count.Total", startupData.batches_count['Total']);
+  // console.log("startupData", startupData.batches_count[selectedBatch]);
 
   const data = Object.entries(startupData.batches_count[selectedBatch])
     .filter(([key]) => key !== 'Total')
     .map(([key, value]) => ({
       name: key,
-      value: (value as any).active + (value as any).inactive,
-      active: (value as any).active,
-      inactive: (value as any).inactive
+      value: (value as any).Active + (value as any).Inactive,
+      Active: (value as any).Active,
+      Inactive: (value as any).Inactive
     }));
+
+  console.log("data", data);
 
   return (
     <Card className="w-full space-y-2">
@@ -265,7 +267,7 @@ const CategoriesPieChart = ({ startupData }: { startupData: any }) => {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px]">
+        <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 20, bottom: 20 }}>
               <Pie
@@ -295,11 +297,11 @@ const PhasesPieChart = ({ startupData }: { startupData: any }) => {
   const [selectedBatch, setSelectedBatch] = useState<keyof PhasesCount>('Total');
   const batches = Object.keys(startupData.phases_count) as Array<keyof PhasesCount>;
 
-  console.log("selectedBatch", selectedBatch);
-  console.log("phases_count keys", batches);
-  console.log("phases_count data", startupData.phases_count);
-  console.log("phases_count.Total", startupData.phases_count['Total']);
-  console.log("startupData", startupData.phases_count[selectedBatch]);
+  // console.log("selectedBatch", selectedBatch);
+  // console.log("phases_count keys", batches);
+  // console.log("phases_count data", startupData.phases_count);
+  // console.log("phases_count.Total", startupData.phases_count['Total']);
+  // console.log("startupData", startupData.phases_count[selectedBatch]);
 
   const data = Object.entries(startupData.phases_count[selectedBatch])
     .filter(([key]) => key !== 'Total')
@@ -325,7 +327,7 @@ const PhasesPieChart = ({ startupData }: { startupData: any }) => {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px]">
+        <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 20, bottom: 20 }}>
               <Pie
@@ -364,8 +366,8 @@ const BatchesBarChart = ({ startupData }: { startupData: any }) => {
     .filter(([key]) => key !== 'Total')
     .map(([key, value]) => ({
       name: key,
-      Active: (value as any)[selectedCategory].active,
-      Inactive: (value as any)[selectedCategory].inactive
+      Active: (value as any)[selectedCategory].Active,
+      Inactive: (value as any)[selectedCategory].Inactive
     }))
 
   return (
@@ -406,24 +408,24 @@ const BatchesBarChart = ({ startupData }: { startupData: any }) => {
 }
 
 const PriorityBarChart = ({ startupData }: { startupData: any }) => {
+  console.log("startupData.priority_count", startupData.priority_count);
+
   // Transform data to show categories within each priority
   const data = Object.entries(startupData.priority_count)
     .filter(([key]) => key !== 'Total')
     .map(([priority]) => {
       const priorityData = startupData.priority_count[priority];
-      return {
-        name: priority,
-        Technology: priorityData.Technology.count,
-        Travel: priorityData.Travel.count,
-        Healthcare: priorityData.Healthcare.count,
-        Finance: priorityData.Finance.count,
-        Education: priorityData.Education.count,
-        'Social Media': priorityData['Social Media'].count,
-        Others: priorityData.Others.count,
-      };
+      const result: { [key: string]: any } = { name: priority };
+      Object.entries(priorityData).forEach(([category, value]) => {
+        if (category !== 'Total') {
+          result[category] = value;
+        }
+      });
+      return result;
     });
 
-  const categories = ['Technology', 'Travel', 'Healthcare', 'Finance', 'Education', 'Social Media', 'Others'];
+  const categories = Object.keys(startupData.priority_count['P0'])
+  console.log("categories", categories);
 
   return (
     <Card className="w-2/3 space-y-2">
@@ -512,8 +514,10 @@ const StartupProgressChart = ({ startupData }: { startupData: any }) => {
 };
 
 const TotalStartupsCard = ({ startupData }: { startupData: any }) => {
-  const totalActive = startupData.batches_count.Total.Total.active;
-  const totalInactive = startupData.batches_count.Total.Total.inactive;
+  console.log("startupData.batches_count.Total.Total.Active", startupData.batches_count.Total.Total.active);
+  console.log("startupData.batches_count.Total.Total.Inactive", startupData.batches_count.Total.Total.inactive);
+  const totalActive = startupData.batches_count.Total.Total.Active;
+  const totalInactive = startupData.batches_count.Total.Total.Inactive;
   const total = totalActive + totalInactive;
 
   return (
@@ -534,9 +538,9 @@ const TotalStartupsCard = ({ startupData }: { startupData: any }) => {
 const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
   const latestBatch = startupData.batches_count['AY 24-25'].Total;
   const previousBatch = startupData.batches_count['AY 23-24'].Total;
-  const currentTotal = latestBatch.active + latestBatch.inactive;
-  const growth = currentTotal - (previousBatch.active + previousBatch.inactive);
-  const growthPercentage = Math.round((growth / (previousBatch.active + previousBatch.inactive)) * 100);
+  const currentTotal = latestBatch.Active + latestBatch.Inactive;
+  const growth = currentTotal - (previousBatch.Active + previousBatch.Inactive);
+  const growthPercentage = Math.round((growth / (previousBatch.Active + previousBatch.Inactive)) * 100);
 
   return (
     <Card className="w-full h-full flex flex-col">
@@ -546,8 +550,8 @@ const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
           <div className="text-md ml-2 py-2 self-end">startups in<br />current batch</div>
         </div>
         <div className="text-base text-gray-500">
-          <span className="text-green-600 text-lg">{latestBatch.active} Active</span> • 
-          <span className="text-gray-600 text-lg"> {latestBatch.inactive} Inactive</span>
+          <span className="text-green-600 text-lg">{latestBatch.Active} Active</span> • 
+          <span className="text-gray-600 text-lg"> {latestBatch.Inactive} Inactive</span>
         </div>
         <div className={`text-lg ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {growth >= 0 ? '↑' : '↓'} {Math.abs(growth)} ({growthPercentage}%)
@@ -560,35 +564,35 @@ const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
 
 export default function StartupCharts() {
   const [data, setData] = useState<any>(dummyData);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetchStartupsForVisualization();
-        setData(response);
-      } catch (err) {
-        console.error('Failed to fetch data, using dummy data instead:', err);
-        // Keep using dummy data if fetch fails
-        setData(dummyData);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetchStartupsForVisualization();
+  //       setData(response);
+  //     } catch (err) {
+  //       console.error('Failed to fetch data, using dummy data instead:', err);
+  //       // Keep using dummy data if fetch fails
+  //       setData(dummyData);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  console.log("data", data);
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+  // console.log("data", data);
 
   return (
     <div className="space-y-8">
       <div className="w-full flex space-x-4">
         <div className="w-7/12 flex flex-col space-y-4">
-          <TotalStartupsCard startupData={data} />
+          <TotalStartupsCard startupData={data} /> 
           <BatchGrowthCard startupData={data} />
         </div>
         <CategoriesPieChart startupData={data} />
@@ -598,7 +602,7 @@ export default function StartupCharts() {
         <BatchesBarChart startupData={data} />
         <PriorityBarChart startupData={data} />
       </div>
-      <StartupProgressChart startupData={data} />
+      {/* <StartupProgressChart startupData={data} /> */}
     </div>
   )
 }
