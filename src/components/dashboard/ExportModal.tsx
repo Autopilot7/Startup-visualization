@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, Radio } from "@nextui-org/radio";
 import { useState } from "react";
 import { exportStartups } from "@/app/actions";
+import { toast } from 'sonner';
+import { Loader2, Download } from "lucide-react";
 
 export interface ExportModalProps {
   isOpen: boolean;
@@ -33,6 +35,7 @@ const AVAILABLE_COLUMNS = [
   { id: "advisors", label: "Advisors" },
   { id: "pitch_deck", label: "Pitch Deck" },
   { id: "avatar", label: "Avatar" },
+  { id: "all", label: "All" },
 ];
 
 export default function ExportModal({
@@ -40,26 +43,56 @@ export default function ExportModal({
   onClose,
   filters,
 }: ExportModalProps) {
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(["name"]);
-  const [exportAll, setExportAll] = useState<boolean>(false);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(["name", "all"]);
+  const [exportAll, setExportAll] = useState<boolean>(true);
   const [isExporting, setIsExporting] = useState(false);
 
   const handleColumnToggle = (columnId: string) => {
-    setSelectedColumns((current) =>
-      current.includes(columnId)
-        ? current.filter((id) => id !== columnId)
-        : [...current, columnId]
-    );
+    if (columnId === "all") {
+      setSelectedColumns(current => {
+        if (!current.includes("all")) {
+          return [...current, "all"];
+        }
+        return current.filter(id => id !== "all");
+      });
+    } else {
+      setSelectedColumns((current) => {
+        const withoutAll = current.filter(id => id !== "all");
+        return withoutAll.includes(columnId)
+          ? withoutAll.filter((id) => id !== columnId)
+          : [...withoutAll, columnId]
+      });
+    }
   };
 
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      await exportStartups(selectedColumns, filters, exportAll);
-      onClose();
+      const response = await exportStartups(selectedColumns, filters, exportAll);
+      
+      if (!response.ok) {
+        throw new Error(`Export failed with status: ${response.status}`);
+      }
+      
+      // Convert ArrayBuffer to Blob
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `startups-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      onClose(); // Close the modal after successful export
     } catch (error) {
       console.error('Export failed:', error);
-      // Could add error handling UI here
+      toast.error('Failed to export startups');
     } finally {
       setIsExporting(false);
     }
@@ -79,8 +112,14 @@ export default function ExportModal({
               <div key={column.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={column.id}
-                  checked={selectedColumns.includes(column.id)}
+                  checked={
+                    column.id === "all" 
+                      ? selectedColumns.includes("all") 
+                      : selectedColumns.includes(column.id)
+                  }
                   onCheckedChange={() => handleColumnToggle(column.id)}
+                  disabled={selectedColumns.includes("all") && column.id !== "all"}
+                  className="w-5 h-5"
                 />
                 <Label htmlFor={column.id}>{column.label}</Label>
               </div>
@@ -117,7 +156,17 @@ export default function ExportModal({
             onClick={handleExport}
             disabled={selectedColumns.length === 0 || isExporting}
           >
-            {isExporting ? "Exporting..." : "Export"}
+            {isExporting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

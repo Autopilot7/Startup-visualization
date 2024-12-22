@@ -10,7 +10,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
       <body className={inter.className}>
         <AuthProvider>
           <NavBar />
-          <Toaster richColors position="top-center" duration={1000}/>
+          <Toaster richColors position="top-center" duration={2000}/>
           {children}
         </AuthProvider>
       </body>

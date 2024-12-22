@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Search, Plus, Download } from "lucide-react";
+import { ChevronDown, Search, Plus, Download, Check } from "lucide-react";
 import Link from "next/link";
 import StartupTable, { StartupTableProps } from "@/components/dashboard/StartupTable";
 import Title from "@/components/Title";
@@ -17,6 +17,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups, fetchStartupWithFilters } from "@/app/actions";
 import ExportModal from "@/components/dashboard/ExportModal";
 import { filterCategories } from '@/lib/filters';
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext);
@@ -26,6 +27,36 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [filters, setFilters] = useState("");
+  const [sortOrder, setSortOrder] = useState("name");
+  const [finalFilterString, setFinalFilterString] = useState("");
+
+
+  // Sorting handler
+  const handleSort = async (param: string) => {
+    setLoading(true);
+    try {
+      // Construct the query string with both filters and sorting
+      const searchString = searchQuery ? `name=${searchQuery}` : '';
+      const orderingParam = `ordering=${param}`;
+
+      const queryString = [
+        filters ? filters : '',
+        searchString,
+        orderingParam
+      ].filter(Boolean).join('&');
+
+      setFinalFilterString(queryString);
+
+      const data = await fetchStartupWithFilters(queryString);
+      setStartupData(data.startups);
+      setSortOrder(param);
+    } catch (error) {
+      toast.error(`Error in sort handler: ${error}`);
+      console.error(`Error in sort handler: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Initial load of startups
   useEffect(() => {
@@ -61,6 +92,7 @@ export default function Dashboard() {
           : '';
 
       // Fetch data
+      setFinalFilterString(newFiltersAndSearch);
       const data = await fetchStartupWithFilters(newFiltersAndSearch);
       setStartupData(data.startups);
     } catch (error) {
@@ -118,6 +150,7 @@ export default function Dashboard() {
           : '';
       console.log("New filters and search: ", newFiltersAndSearch);
       // Fetch with the new search immediately
+      setFinalFilterString(newFiltersAndSearch);
       const data = await fetchStartupWithFilters(newFiltersAndSearch);
       setStartupData(data.startups);
     } catch (error) {
@@ -126,6 +159,7 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col">
@@ -194,9 +228,27 @@ export default function Dashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem>Alphabetically</DropdownMenuItem>
-                <DropdownMenuItem>Batch</DropdownMenuItem>
-                <DropdownMenuItem>Priority</DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleSort('name')}
+                  className="flex justify-between items-center"
+                >
+                  Alphabetically
+                  {sortOrder === 'name' && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleSort('batch_name')}
+                  className="flex justify-between items-center"
+                >
+                  Batch
+                  {sortOrder === 'batch_name' && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleSort('priority_name')}
+                  className="flex justify-between items-center"
+                >
+                  Priority
+                  {sortOrder === 'priority_name' && <Check className="h-4 w-4" />}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -212,7 +264,7 @@ export default function Dashboard() {
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        filters={formatFilterDisplay()}
+        filters={finalFilterString}
       />
     </div>
   );

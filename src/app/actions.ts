@@ -253,18 +253,42 @@ export async function fetchStartupsForVisualization(): Promise<any> {
   }
 }
 
-export async function exportStartups(columns: string[], filters: string, exportAll: boolean): Promise<any> {
+export async function exportStartups(columns: string[], filters: string, exportAll: boolean): Promise<{
+  ok: boolean;
+  status: number;
+  data: ArrayBuffer;
+}> {
   let apiEndpoint = 'https://startupilot.cloud.strixthekiet.me/api/startups/export';
   try {
+    let finalUrl = apiEndpoint;
+    
     if (!exportAll) {
-      apiEndpoint = `${apiEndpoint}?${filters}`;
+      if (filters && columns.length > 0) {
+        finalUrl = `${apiEndpoint}?${filters}&columns=${columns.join(',')}`;
+      }
+      else if (filters) {
+        finalUrl = `${apiEndpoint}?${filters}`;
+      }
+      else if (columns.length > 0) {
+        finalUrl = `${apiEndpoint}?columns=${columns.join(',')}`;
+      }
     }
-    if (columns.length > 0) {
-      apiEndpoint = `${apiEndpoint}?columns=${columns.join(',')}`;
+    
+    console.log("API Endpoint: ", finalUrl);
+    const response = await fetch(finalUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Export failed with status: ${response.status}`);
     }
-    const response = await fetch(apiEndpoint);
-    return response;
+    
+    const arrayBuffer = await response.arrayBuffer();
+    
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: arrayBuffer
+    };
   } catch (err) {
-    throw new Error(`Failed to fetch data, using dummy data instead: ${err}`);
+    throw new Error(`Failed to export startups: ${err}`);
   }
 }

@@ -79,27 +79,27 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       
       // If "All" is selected
       if (option === 'All') {
-        // If All was just selected, make it the only selection
+        // If All was just selected, add it to existing selections
         if (!updatedCategory.includes('All')) {
-          return { ...prev, [category]: ['All'] }
+          return { ...prev, [category]: ['All', ...updatedCategory] }
         }
-        // If All was unselected, clear the category
-        return { ...prev, [category]: [] }
+        // If All was unselected, remove it but keep other selections
+        return { 
+          ...prev, 
+          [category]: updatedCategory.filter(opt => opt !== 'All')
+        }
       }
       
       // If a non-All option was selected
       const optionIndex = updatedCategory.indexOf(option)
       
-      // Remove "All" if it was previously selected
-      const categoryWithoutAll = updatedCategory.filter(opt => opt !== 'All')
-      
+      // Keep "All" in the array if it exists, just add/remove the new option
       if (optionIndex > -1) {
-        categoryWithoutAll.splice(categoryWithoutAll.indexOf(option), 1)
+        const newCategory = updatedCategory.filter(opt => opt !== option)
+        return { ...prev, [category]: newCategory }
       } else {
-        categoryWithoutAll.push(option)
+        return { ...prev, [category]: [...updatedCategory, option] }
       }
-
-      return { ...prev, [category]: categoryWithoutAll }
     })
   }
 
@@ -267,12 +267,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                               />
                               <Label 
                                 htmlFor={`${category.name}-${optionIndex}`}
-                                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                                  option !== 'All' && 
-                                  selectedFilters[category.name]?.includes('All') 
-                                    ? 'text-gray-400' 
-                                    : ''
-                                }`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                               >
                                 {option}
                               </Label>
@@ -342,12 +337,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                                 />
                                 <Label 
                                   htmlFor={`${category.name}-${optionIndex}`}
-                                  className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                                    option !== 'All' && 
-                                    selectedFilters[category.name]?.includes('All') 
-                                      ? 'text-gray-400' 
-                                      : ''
-                                  }`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
                                   {option}
                                 </Label>

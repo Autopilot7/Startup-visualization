@@ -230,11 +230,11 @@ const CategoriesPieChart = ({ startupData }: { startupData: any }) => {
   const [selectedBatch, setSelectedBatch] = useState<keyof BatchesCount>('Total');
   const batches = Object.keys(startupData.batches_count) as Array<keyof BatchesCount>;
 
-  // console.log("selectedBatch", selectedBatch);
-  // console.log("batches keys", batches);
-  // console.log("batches data", startupData.batches_count);
-  // console.log("batches_count.Total", startupData.batches_count['Total']);
-  // console.log("startupData", startupData.batches_count[selectedBatch]);
+  console.log("selectedBatch", selectedBatch);
+  console.log("batches keys", batches);
+  console.log("batches data", startupData.batches_count);
+  console.log("batches_count.Total", startupData.batches_count['Total']);
+  console.log("startupData", startupData.batches_count[selectedBatch]);
 
   const data = Object.entries(startupData.batches_count[selectedBatch])
     .filter(([key]) => key !== 'Total')
