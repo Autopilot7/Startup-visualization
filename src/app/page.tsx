@@ -85,10 +85,10 @@ export default function Dashboard() {
       const searchString = searchQuery ? `name=${searchQuery}` : '';
       const newFiltersAndSearch = newFilters
         ? searchString 
-          ? `?${newFilters}&${searchString}`
-          : `?${newFilters}`
+          ? `${newFilters}&${searchString}`
+          : `${newFilters}`
         : searchString 
-          ? `?${searchString}` 
+          ? `${searchString}` 
           : '';
 
       // Fetch data
