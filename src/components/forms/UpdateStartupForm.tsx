@@ -462,7 +462,7 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({ startupId, onClos
         );
         console.log("Update Startup Response:", response);
     
-        if (response.status === 201) {
+        if (response.status === 200) {
           toast.success("Startup updated successfully!");
           // Optionally, redirect or reset form here
         } else {
