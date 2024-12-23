@@ -8,8 +8,8 @@ import { Button } from "../ui/button";
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Modal from "../Modal"; // Assuming you have a Modal component
-import CreateMemberForm from '@/app/create-member/page';
-import CreateAdvisorForm from '@/app/create-advisor/page';
+import { MemberForm } from "@/components/forms/MemberForm";
+import { AdvisorForm } from "@/components/forms/AdvisorForm";
 import { useEffect } from "react";
 import axios from 'axios';
 import { endpoints } from '@/app/utils/apis';
@@ -253,7 +253,7 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
 
   
   // Pass handleAddMember to CreateMemberForm
-  <CreateMemberForm
+  <MemberForm
     onClose={() => setIsMemberModalOpen(false)}
     onAddMember={handleAddMember} // Ensure this prop is passed
   />
@@ -928,24 +928,27 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
         </div>
       </Modal>
       <Modal
-      isOpen={isMemberModalOpen}
-      onClose={() => setIsMemberModalOpen(false)}
-      title="Create Member"
-      maxWidth="max-w-4xl" // Increase the max-width
-    >
-      <CreateMemberForm onClose={() => setIsMemberModalOpen(false)} onAddMember={handleAddMember} />
-    </Modal>
-    <Modal
-    isOpen={isAdvisorModalOpen}
-    onClose={() => setIsAdvisorModalOpen(false)}
-    title="Create Advisor"
-    maxWidth="max-w-4xl" // Adjust as needed
-  >
-    <CreateAdvisorForm
-      onClose={() => setIsAdvisorModalOpen(false)}
-      onAddAdvisor={handleAddAdvisor}
-    />
-  </Modal>
+        isOpen={isMemberModalOpen}
+        onClose={() => setIsMemberModalOpen(false)}
+        title="Create Member"
+        maxWidth="max-w-4xl"
+      >
+        <MemberForm 
+          onClose={() => setIsMemberModalOpen(false)} 
+          onAddMember={handleAddMember} 
+        />
+      </Modal>
+      <Modal
+        isOpen={isAdvisorModalOpen}
+        onClose={() => setIsAdvisorModalOpen(false)}
+        title="Create Advisor"
+        maxWidth="max-w-4xl"
+      >
+        <AdvisorForm 
+          onClose={() => setIsAdvisorModalOpen(false)} 
+          onAddAdvisor={handleAddAdvisor} 
+        />
+      </Modal>
     </div>
   );
 };
