@@ -6,6 +6,7 @@ import { endpoints } from './utils/apis';
 interface StartupResponse {
   startups: StartupTableProps["startups"];
   next: string | null;
+  count: number;
 }
 
 export async function fetchStartups(): Promise<StartupResponse> {
@@ -33,7 +34,8 @@ export async function fetchStartups(): Promise<StartupResponse> {
         }));
         return { 
             startups,
-            next: data.next 
+            next: data.next,
+            count: data.count
         };
     } catch (error) {
         throw new Error('Error fetching startups');
@@ -67,7 +69,8 @@ export async function fetchStartupWithFilters(filters: any): Promise<StartupResp
         
         return { 
             startups,
-            next: data.next 
+            next: data.next,
+            count: data.count
         };
     } catch (error) {
         throw new Error('Error fetching filtered startups');
