@@ -41,6 +41,11 @@ export default function Dashboard() {
   // For debug or export
   const [finalFilterString, setFinalFilterString] = useState("");
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+
   // Debounce search changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -50,32 +55,45 @@ export default function Dashboard() {
   }, [searchQuery]);
 
   // Combined data fetch function
-  const fetchCombinedData = useCallback(async () => {
+  const fetchCombinedData = useCallback(async (pageNum: number) => {
     try {
       setLoading(true);
-
       const queryParts: string[] = [];
       if (filters) queryParts.push(filters);
       if (debouncedSearchQuery) queryParts.push(`name=${debouncedSearchQuery}`);
       if (sortOrder) queryParts.push(`ordering=${sortOrder}`);
+      queryParts.push(`page=${pageNum}`);
 
       const fullQueryString = queryParts.join("&");
-      setFinalFilterString(fullQueryString);
-
       const data = await fetchStartupWithFilters(fullQueryString);
-      setStartupData(data.startups);
+      
+      if (pageNum === 1) {
+        setStartupData(data.startups);
+      } else {
+        setStartupData(prev => [...prev, ...data.startups]);
+      }
+      
+      setHasMore(data.next !== null);
+      setTotalCount(data.count);
     } catch (error) {
       toast.error(`Error fetching data: ${error}`);
-      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   }, [filters, debouncedSearchQuery, sortOrder]);
 
-  // Use a single effect to watch filter, debounced search, and sort changes
+  // Update the useEffect that watches filter changes
   useEffect(() => {
-    fetchCombinedData();
-  }, [fetchCombinedData]);
+    setPage(1); // Reset page when filters change
+    fetchCombinedData(1);
+  }, [filters, debouncedSearchQuery, sortOrder]);
+
+  // Add new useEffect for page changes
+  useEffect(() => {
+    if (page > 1) { // Only fetch if it's not the first page
+      fetchCombinedData(page);
+    }
+  }, [page]);
 
   // Initial load of startups
   useEffect(() => {
@@ -137,6 +155,13 @@ export default function Dashboard() {
     return filterStrings.length > 0 ? filterStrings.join(" • ") : "No filters applied";
   };
 
+  // Update handleLoadMore
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row min-h-screen">
@@ -166,7 +191,7 @@ export default function Dashboard() {
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {startupData.length} startup{startupData.length !== 1 ? "s" : ""} found
+                {startupData.length} of {totalCount} startup{totalCount !== 1 ? "s" : ""} displayed
               </span>
               <span>•</span>
               <span className="italic">{formatFilterDisplay()}</span>
@@ -227,7 +252,11 @@ export default function Dashboard() {
             <div>Loading...</div>
           ) : (
             <Suspense fallback={<div>Loading...</div>}>
-              <StartupTable startups={startupData} />
+              <StartupTable 
+                startups={startupData} 
+                hasMore={hasMore} 
+                onLoadMore={handleLoadMore} 
+              />
             </Suspense>
           )}
         </main>
