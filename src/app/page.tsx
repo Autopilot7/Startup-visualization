@@ -44,6 +44,7 @@ export default function Dashboard() {
   // Pagination
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Debounce search changes
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function Dashboard() {
       }
       
       setHasMore(data.next !== null);
+      setTotalCount(data.count);
     } catch (error) {
       toast.error(`Error fetching data: ${error}`);
     } finally {
@@ -189,7 +191,7 @@ export default function Dashboard() {
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {startupData.length} startup{startupData.length !== 1 ? "s" : ""} found
+                {startupData.length} of {totalCount} startup{totalCount !== 1 ? "s" : ""} displayed
               </span>
               <span>•</span>
               <span className="italic">{formatFilterDisplay()}</span>
