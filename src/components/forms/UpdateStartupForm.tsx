@@ -14,6 +14,7 @@ import axios from "axios";
 import { endpoints } from "@/app/utils/apis";
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
+import { MemberForm } from "@/components/forms/MemberForm";
 
 interface Member {
   id: string;
@@ -1207,7 +1208,7 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({
         title="Create Member"
         maxWidth="max-w-4xl"
       >
-        <CreateMemberForm
+        <MemberForm
           onClose={() => setIsMemberModalOpen(false)}
           onAddMember={handleAddMember}
         />
