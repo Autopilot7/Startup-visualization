@@ -41,7 +41,7 @@ interface CreateAdvisorFormProps {
   onAddAdvisor: (advisor: { id: string; name: string }) => void;
 }
 
-export const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
+export const AdvisorForm: React.FC<CreateAdvisorFormProps> = ({
   onClose,
   onAddAdvisor,
 }) => {
@@ -211,4 +211,11 @@ export const CreateAdvisorForm: React.FC<CreateAdvisorFormProps> = ({
   );
 };
 
-// export CreateAdvisorForm;
+export default function CreateAdvisorForm({ onClose, onAddAdvisor }: CreateAdvisorFormProps) {
+  return (
+    <AdvisorForm 
+      onClose={onClose}
+      onAddAdvisor={onAddAdvisor}
+    />
+  );
+}
