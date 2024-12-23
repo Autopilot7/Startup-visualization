@@ -62,7 +62,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
 
     const handleUpdateNote = async (noteId: string, updatedContent: string) => {
         try {
-            await axios.put(`https://startupilot.cloud.strixthekiet.me/api/notes/${noteId}`, { content: updatedContent });
+            await axios.put(`${endpoints.notes}/${noteId}`, { content: updatedContent });
             setNotes((prevNotes) =>
                 prevNotes.map((note) => (note.id === noteId ? { ...note, content: updatedContent } : note))
             );
@@ -73,7 +73,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
 
     const handleDeleteNote = async (noteId: string) => {
         try {
-            await axios.delete(`https://startupilot.cloud.strixthekiet.me/api/notes/${noteId}`);
+            await axios.delete(`${endpoints.notes}/${noteId}`);
             setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
         } catch (error) {
             console.error('Error deleting note:', error);
@@ -222,7 +222,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                 <div>
                 <h2 className="center text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
 
-                <div>
+                <div style={{ width: '100%', height: '400px' }}>
                 <iframe
                     src={pitch_deck}
                     width="100%"
