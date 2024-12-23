@@ -11,19 +11,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Search, Plus, Download, Check } from "lucide-react";
 import Link from "next/link";
-import StartupTable, { StartupTableProps } from "@/components/dashboard/StartupTable";
+import StartupTable from "@/components/dashboard/StartupTable";
 import Title from "@/components/Title";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchStartups, fetchStartupWithFilters } from "@/app/actions";
 import ExportModal from "@/components/dashboard/ExportModal";
 import { filterCategories } from "@/lib/filters";
 import { toast } from "sonner";
+import type { StartupCardProps } from "@/components/dashboard/StartupCard";
 
-export default function Dashboard() {
+export default function Dashboard(): JSX.Element {
   const { isAuthenticated } = useContext(AuthContext);
 
   // Startups data, loading states, and modal
-  const [startupData, setStartupData] = useState<StartupTableProps["startups"]>([]);
+  const [startupData, setStartupData] = useState<StartupCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
