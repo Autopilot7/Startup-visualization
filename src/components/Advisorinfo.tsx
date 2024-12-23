@@ -141,21 +141,6 @@ export default function Advisorinfo({
               <FaFacebook size={36} />
             </a>
           )}
-          {instagram_url ? (
-            <a
-              href={instagram_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pink-600 hover:text-pink-500 transition-colors"
-            >
-              <FaInstagram size={36} />
-            </a>
-          ) : (
-            <FaInstagram
-              size={36}
-              className="text-pink-600 cursor-pointer hover:text-pink-500 transition-colors"
-            />
-          )}
         </div>
       </div>
     </div>
