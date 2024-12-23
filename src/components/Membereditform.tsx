@@ -46,7 +46,7 @@ export const MemberEditForm: React.FC<MemberEditFormProps> = ({ id }) => {
 
       try {
         const response = await axios.get<Member>(
-          `https://startupilot.cloud.strixthekiet.me/api/members/${id}`
+          `${endpoints.members}${id}`
         );
         setMember(response.data);
       } catch (error) {
@@ -101,7 +101,7 @@ export const MemberEditForm: React.FC<MemberEditFormProps> = ({ id }) => {
   const updateNote = async (noteId: string, content: string) => {
     try {
       await axios.put(
-        `https://startupilot.cloud.strixthekiet.me/api/notes/${noteId}`,
+        `${endpoints.notes}/${noteId}`,
         { content }
       );
     } catch (error) {
@@ -136,7 +136,7 @@ export const MemberEditForm: React.FC<MemberEditFormProps> = ({ id }) => {
 
     try {
       await axios.put(
-        `https://startupilot.cloud.strixthekiet.me/api/members/${member.id}`,
+        `${endpoints.members}${member.id}`,
         member
       );
       setSuccessMessage("Changes saved successfully.");
@@ -265,7 +265,7 @@ export const MemberEditForm: React.FC<MemberEditFormProps> = ({ id }) => {
               </label>
 
               <label>
-                Notes:
+                Introduction:
                 <ul>
                   {member.notes.map((note) => (
                     <li key={note.id}>

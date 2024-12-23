@@ -154,10 +154,7 @@ export default function Memberinfo({
               <FaFacebook size={36} />
             </a>
           )}
-          <FaInstagram
-            size={36}
-            className="text-pink-600 cursor-pointer hover:text-pink-500 transition-colors"
-          />
+        
         </div>
       </div>
 
