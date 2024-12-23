@@ -86,14 +86,14 @@ export default function Dashboard() {
   useEffect(() => {
     setPage(1); // Reset page when filters change
     fetchCombinedData(1);
-  }, [filters, debouncedSearchQuery, sortOrder]);
+  }, [filters, debouncedSearchQuery, sortOrder, fetchCombinedData]);
 
   // Add new useEffect for page changes
   useEffect(() => {
     if (page > 1) { // Only fetch if it's not the first page
       fetchCombinedData(page);
     }
-  }, [page]);
+  }, [page, fetchCombinedData]);
 
   // Initial load of startups
   useEffect(() => {
@@ -191,14 +191,14 @@ export default function Dashboard() {
           <div className="mb-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {startupData.length} of {totalCount} startup{totalCount !== 1 ? "s" : ""} displayed
+                {startupData.length} of {totalCount} startup{totalCount !== 1 ? "s" : ""} found
               </span>
               <span>•</span>
               <span className="italic">{formatFilterDisplay()}</span>
               {searchQuery && (
                 <>
                   <span>•</span>
-                  <span className="italic">Search: "{searchQuery}"</span>
+                  <span className="italic">Search: &quot;{searchQuery}&quot;</span>
                 </>
               )}
             </div>
