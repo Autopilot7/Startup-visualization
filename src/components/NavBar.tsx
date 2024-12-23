@@ -26,7 +26,7 @@ const menuItems = [
       },
       {
         icon: <UsersRound size={30} />,
-        label: "Members",
+        label: "People",
         href: "/members",
         visible: ["admin", "visitor"],
       },
