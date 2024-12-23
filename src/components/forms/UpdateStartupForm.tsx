@@ -9,7 +9,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import Modal from "../Modal"; // Assuming you have a Modal component
 import CreateMemberForm from "@/app/create-member/page";
-import CreateAdvisorForm from "@/app/create-advisor/page";
+import { CreateAdvisorForm } from "@/app/create-advisor/page";
 import axios from "axios";
 import { endpoints } from "@/app/utils/apis";
 import Select from "react-select";
@@ -1157,8 +1157,8 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({
             <button
             type="submit"
             onClick={async () => {
-              await handleSubmit();
-                window.location.href = `../../startupinfo/${startupId}`;
+              await onSubmit();
+              window.location.href = `../../startupinfo/${startupId}`;
             }}
             className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
             >
