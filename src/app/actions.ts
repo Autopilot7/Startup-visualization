@@ -3,7 +3,12 @@ import { StartupTableProps } from '@/components/dashboard/StartupTable';
 import { Startup } from '@/components/dashboard/StartupCard';
 import { endpoints } from './utils/apis';
 
-export async function fetchStartups(): Promise<StartupTableProps> {
+interface StartupResponse {
+  startups: StartupTableProps["startups"];
+  next: string | null;
+}
+
+export async function fetchStartups(): Promise<StartupResponse> {
     try {
         const response = await fetch(
             `${endpoints.startups}`
@@ -26,13 +31,16 @@ export async function fetchStartups(): Promise<StartupTableProps> {
         facebook: item.facebook || '',
         pitchdeck: item.pitchdeck || '',
         }));
-        return { startups };
+        return { 
+            startups,
+            next: data.next 
+        };
     } catch (error) {
         throw new Error('Error fetching startups');
     }
 };
 
-export async function fetchStartupWithFilters(filters: any): Promise<StartupTableProps> {
+export async function fetchStartupWithFilters(filters: any): Promise<StartupResponse> {
     try {
         const response = await fetch(
             `${endpoints.startups}?${filters}`
@@ -57,7 +65,10 @@ export async function fetchStartupWithFilters(filters: any): Promise<StartupTabl
             pitchdeck: item.pitchdeck || '',
         }));
         
-        return { startups };
+        return { 
+            startups,
+            next: data.next 
+        };
     } catch (error) {
         throw new Error('Error fetching filtered startups');
     }
