@@ -222,7 +222,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                 <div>
                 <h2 className="center text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
 
-                <div style={{ width: '100%', height: '400px' }}>
+                <div style={{ width: '100%', height: '600px' }}>
                 <iframe
                     src={pitch_deck}
                     width="100%"
