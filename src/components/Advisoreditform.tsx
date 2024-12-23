@@ -45,7 +45,7 @@ export const AdvisorEditForm: React.FC<AdvisorEditFormProps> = ({ id }) => {
 
       try {
         const response = await axios.get<Advisor>(
-          `https://startupilot.cloud.strixthekiet.me/api/advisors/${id}`
+          `${endpoints.advisors}${id}`
         );
         setAdvisor(response.data);
       } catch (error) {
@@ -109,7 +109,7 @@ export const AdvisorEditForm: React.FC<AdvisorEditFormProps> = ({ id }) => {
 
     try {
       await axios.put(
-        `https://startupilot.cloud.strixthekiet.me/api/advisors/${advisor.id}`,
+        `${endpoints.advisors}${advisor.id}`,
         advisor
       );
       setSuccessMessage("Changes saved successfully.");

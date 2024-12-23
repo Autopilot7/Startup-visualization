@@ -1,12 +1,13 @@
 "use server"
 import { StartupTableProps } from '@/components/dashboard/StartupTable';
 import { Startup } from '@/components/dashboard/StartupCard';
+import { endpoints } from './utils/apis';
 
 
 export async function fetchStartups(): Promise<StartupTableProps> {
     try {
         const response = await fetch(
-            'https://startupilot.cloud.strixthekiet.me/api/startups/'
+            `${endpoints.startups}`
         );
         const data = await response.json();
     
@@ -35,7 +36,7 @@ export async function fetchStartups(): Promise<StartupTableProps> {
 export async function fetchStartupWithFilters(filters: any): Promise<StartupTableProps> {
     try {
         const response = await fetch(
-            `https://startupilot.cloud.strixthekiet.me/api/startups/?${filters}`
+            `${endpoints.startups}?${filters}`
         );
         const data = await response.json();
         console.log("Fetch startups with filters: ", filters);
@@ -65,7 +66,7 @@ export async function fetchStartupWithFilters(filters: any): Promise<StartupTabl
 
 export async function fetchStartupById(id: string): Promise<Startup> {
     try {
-      const response = await fetch(`https://startupilot.cloud.strixthekiet.me/api/startups/${id}`);
+      const response = await fetch(`${endpoints.startups}${id}`);
       if (!response.ok) {
         throw new Error('Network response was not OK');
       }
@@ -117,7 +118,7 @@ export interface Member {
   
   export async function fetchMemberById(id: string): Promise<Member> {
     try {
-      const response = await fetch(`https://startupilot.cloud.strixthekiet.me/api/members/${id}`);
+      const response = await fetch(`${endpoints.members}${id}`);
       if (!response.ok) {
         throw new Error('Network response was not OK');
       }
@@ -160,7 +161,7 @@ export interface Members {
   
   export async function fetchAllMembers(): Promise<Members[]> {
     try {
-      const response = await fetch("https://startupilot.cloud.strixthekiet.me/api/members/", {
+      const response = await fetch(`${endpoints.members}`, {
         // next: { revalidate: 60 } // if you want revalidation caching
       });
       if (!response.ok) {
@@ -198,7 +199,7 @@ export interface Members {
  
  export async function fetchAllAdvisors(): Promise<Members[]> {
     try {
-      const response = await fetch("https://startupilot.cloud.strixthekiet.me/api/advisors/", {
+      const response = await fetch(`${endpoints.advisors}`, {
         // next: { revalidate: 60 } // if you want revalidation caching
       });
       if (!response.ok) {
@@ -215,7 +216,7 @@ export interface Members {
 
 export async function fetchAdvisorById(id: string): Promise<Advisors> {
   try {
-    const response = await fetch(`https://startupilot.cloud.strixthekiet.me/api/advisors/${id}`);
+    const response = await fetch(`${endpoints.advisors}${id}`);
     if (!response.ok) {
       throw new Error('Network response was not OK');
     }

@@ -10,6 +10,9 @@ import MemberCard from './Membercard';
 import AdvisorCard from './Advisorcard';
 import { fetchAdvisorById } from '@/app/actions';
 import { AuthContext } from '@/context/AuthContext';
+import axios from 'axios';
+import { endpoints } from '@/app/utils/apis';
+import { create } from 'domain';
 
 export default function StartupInfo(props: Startup): React.JSX.Element {
     const {
@@ -23,9 +26,10 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
       phases,
       batch,
       linkedin_url,
+      facebook_url,
       memberships,
       advisors,
-      notes,
+      notes: initialNotes,
       pitch_deck,
       location,
     } = props;
@@ -33,6 +37,49 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
     const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
     const activeMemberships = memberships.filter((m) => m.status);
     const { isAuthenticated } = useContext(AuthContext);
+    const [isEditNotesModalVisible, setIsEditNotesModalVisible] = useState(false);
+    const [notes, setNotes] = useState(initialNotes || []);
+    const [newNoteContent, setNewNoteContent] = useState('');
+
+    const handleAddNote = async () => {
+        try {
+            const response = await axios.post(endpoints.createnotes, {
+                content: newNoteContent,
+                content_type: 'startup', // Assuming the note is for a startup
+                object_id: id, // The ID of the startup
+            });
+            // Add the new note to the state
+            setNotes((prevNotes) => [...prevNotes, response.data]);
+            setNewNoteContent('');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Error creating note:', error.response?.data || error.message);
+            } else {
+                console.error('Error creating note:', error);
+            }
+        }
+    };
+
+    const handleUpdateNote = async (noteId: string, updatedContent: string) => {
+        try {
+            await axios.put(`https://startupilot.cloud.strixthekiet.me/api/notes/${noteId}`, { content: updatedContent });
+            setNotes((prevNotes) =>
+                prevNotes.map((note) => (note.id === noteId ? { ...note, content: updatedContent } : note))
+            );
+        } catch (error) {
+            console.error('Error updating note:', error);
+        }
+    };
+
+    const handleDeleteNote = async (noteId: string) => {
+        try {
+            await axios.delete(`https://startupilot.cloud.strixthekiet.me/api/notes/${noteId}`);
+            setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+        } catch (error) {
+            console.error('Error deleting note:', error);
+        }
+    };
+
     return (
         <div className="w-full h-full bg-white space-y">
             <div className='flex'>
@@ -72,12 +119,19 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                             <span className="bg-green-500 text-white text-sm px-2.5 py-0.5 rounded">{status}</span>
                             
                         </div>
-                        <button
+                        {isAuthenticated && (
+                        <><button
                                 onClick={() => setIsUpdateFormVisible(true)}
                                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ml-80"
                             >
                                 Edit Startup
-                            </button>
+                            </button><button
+                                onClick={() => setIsEditNotesModalVisible(true)}
+                                className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 ml-4"
+                            >
+                                    Edit Notes
+                                </button></>
+                        )}
                     </div>
                 </div>
                 
@@ -125,8 +179,10 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                     <a href={linkedin_url} target="_blank" rel="noopener noreferrer">
                         <FaLinkedin size={44} className="text-blue-600 cursor-pointer" />
                     </a>
-                    <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
-                    <FaInstagram size={44} className="text-pink-600 cursor-pointer" />
+                    <a href={facebook_url} target="_blank" rel="noopener noreferrer">
+                        <FaFacebook size={44} className="text-blue-800 cursor-pointer" />
+                    </a>                
+                    
                 </div>
             </div>
 
@@ -141,26 +197,6 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                     {long_description}
                     </p>
                 </div>
-
-                {/* <div>
-                    <h2 className="text-5xl font-bold mt-7 mb-7">Latest News</h2>
-                    <ul className="space-y-4">
-                        <li>
-                            <a href="https://vinuni.edu.vn/vinuni-and-techcombank-jointly-cultivate-a-future-generation-of-financially-savvy-leaders-through-strategic-cooperation/" 
-                               className="text-blue-400 underline text-2xl font-semibold">
-                                VinUni and Techcombank jointly cultivate a future generation of financially savvy leaders through strategic cooperation
-                            </a>
-                            <p className="text-xl mt-2">May 2024</p>
-                        </li>
-                        <li>
-                            <a href="https://vinuni.edu.vn/vinuni-students-win-prizes-in-domestic-and-foreign-startup-competitions-with-the-desire-to-improve-understanding-of-personal-finance-for-young-vietnamese-people/" 
-                               className="text-blue-400 underline text-2xl font-semibold">
-                                VinUni students win prizes in domestic and foreign startup competitions with an edtech solution
-                            </a>
-                            <p className="text-xl mt-2">Oct 2023</p>
-                        </li>
-                    </ul>
-                </div> */}
 
                 
                 {isAuthenticated && 
@@ -182,45 +218,12 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
 }
 
                 
-{/* <div>
-                    <h2 className="text-5xl font-bold mt-7 mb-8">Revenue</h2>
-                    <div className="space-y-6">
-                        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-blue-600">Seed Round</h3>
-                                    <p className="text-gray-600 text-lg mt-1">December 2023</p>
-                                </div>
-                                <div className="text-right">
-                                    <span className="text-3xl font-bold text-green-600">$500K</span>
-                                    <p className="text-sm text-gray-500">Investment</p>
-                                </div>
-                            </div>
-                        </div>  
-
-                        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-blue-600">Pre-seed Round</h3>
-                                    <p className="text-gray-600 text-lg mt-1">June 2023</p>
-                                </div>
-                                <div className="text-right">
-                                    <span className="text-3xl font-bold text-green-600">$100K</span>
-                                    <p className="text-sm text-gray-500">Investment</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 */}
-                
                 <div>
                 <h2 className="center text-5xl font-bold mt-7 mb-8">Pitch deck</h2>
 
                 <div>
                 <iframe
-                    // src={pitch_deck}
-                    src = {"https://th.bing.com/th/id/OIP.GT4256Odg6UjsYKIgYmOyAHaEI?rs=1&pid=ImgDetMain"}
+                    src={pitch_deck}
                     width="100%"
                     height="100%"
                     style={{ border: 'none' }}
@@ -239,8 +242,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                                 id={advisor.member.id}
                                 name={advisor.member.name}
                                 avatar={advisor.member.avatar || undefined}
-                                // If membership array is available, pass it
-                                // memberships={member.memberships}
+                              
                             />
                             ))}
                         </div>
@@ -255,8 +257,7 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                                 id={advisor.id}
                                 name={advisor.name}
                                 avatar={advisor.avatar ?? undefined}
-                                // If membership array is available, pass it
-                                // memberships={member.memberships}
+                            
                             />
                             ))}
                         </div>
@@ -264,6 +265,46 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
 
                 
             </div>
+            {/* Edit Notes Modal */}
+            {isEditNotesModalVisible && (
+                <Modal
+                    isOpen={isEditNotesModalVisible}
+                    onClose={() => setIsEditNotesModalVisible(false)}
+                    title="Edit Notes"
+                >
+                    <div>
+                        {notes.map((note) => (
+                            <div key={note.id} className="mb-4 p-4 border rounded">
+                                <textarea
+                                    className="w-full border p-2 rounded"
+                                    value={note.content}
+                                    onChange={(e) => handleUpdateNote(note.id, e.target.value)}
+                                />
+                                <button
+                                    onClick={() => handleDeleteNote(note.id)}
+                                    className="text-red-500 mt-2 hover:underline"
+                                >
+                                    Delete Note
+                                </button>
+                            </div>
+                        ))}
+                        <div className="mt-4">
+                            <textarea
+                                className="w-full border p-2 rounded"
+                                placeholder="Add a new note"
+                                value={newNoteContent}
+                                onChange={(e) => setNewNoteContent(e.target.value)}
+                            />
+                            <button
+                                onClick={handleAddNote}
+                                className="bg-green-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-green-600"
+                            >
+                                Add Note
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
             {isUpdateFormVisible && (
             <Modal
             isOpen={isUpdateFormVisible}
