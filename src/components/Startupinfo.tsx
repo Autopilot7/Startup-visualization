@@ -120,14 +120,15 @@ export default function StartupInfo(props: Startup): React.JSX.Element {
                             
                         </div>
                         {isAuthenticated && (
+                            
                         <><button
                                 onClick={() => setIsUpdateFormVisible(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ml-80"
+                                className="bg-blue-500 text-white px-1 py-2 rounded-md hover:bg-blue-600 ml-60 font-semibold"
                             >
                                 Edit Startup
                             </button><button
                                 onClick={() => setIsEditNotesModalVisible(true)}
-                                className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 ml-4"
+                                className="bg-purple-500 text-white px-1 py-2 rounded-md hover:bg-purple-600 ml-2 font-semibold"
                             >
                                     Edit Notes
                                 </button></>
