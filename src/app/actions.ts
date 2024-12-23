@@ -276,8 +276,8 @@ export async function exportStartups(columns: string[], filters: string, exportA
         finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
       }
     }
-    else if (filters.length > 0) {
-      finalUrl = `${apiEndpoint}?${filters}`;
+    else if (columns.length > 0 && !columns.includes("all")) {
+      finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
     }
     
     console.log("API Endpoint: ", finalUrl);

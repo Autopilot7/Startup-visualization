@@ -26,7 +26,7 @@ interface PhasesCount {
 
 interface BatchCategory {
   Active: number;
-  Inactive: number;
+  InActive: number;
 }
 
 interface BatchData {
@@ -50,44 +50,44 @@ interface BatchesCount {
 const dummyData = {
   batches_count: {
     'AY 22-23': {
-      Technology: { Active: 15, Inactive: 5 },
-      Travel: { Active: 8, Inactive: 2 },
-      Healthcare: { Active: 12, Inactive: 3 },
-      Finance: { Active: 6, Inactive: 2 },
-      Education: { Active: 10, Inactive: 2 },
-      'Social Media': { Active: 5, Inactive: 2 },
-      Others: { Active: 3, Inactive: 2 },
-      Total: { Active: 59, Inactive: 16 }
+      Technology: { Active: 15, InActive: 5 },
+      Travel: { Active: 8, InActive: 2 },
+      Healthcare: { Active: 12, InActive: 3 },
+      Finance: { Active: 6, InActive: 2 },
+      Education: { Active: 10, InActive: 2 },
+      'Social Media': { Active: 5, InActive: 2 },
+      Others: { Active: 3, InActive: 2 },
+      Total: { Active: 59, InActive: 16 }
     },
     'AY 23-24': {
-      Technology: { Active: 20, Inactive: 5 },
-      Travel: { Active: 12, Inactive: 3 },
-      Healthcare: { Active: 15, Inactive: 3 },
-      Finance: { Active: 8, Inactive: 2 },
-      Education: { Active: 13, Inactive: 3 },
-      'Social Media': { Active: 7, Inactive: 2 },
-      Others: { Active: 5, Inactive: 2 },
-      Total: { Active: 70, Inactive: 17 }
+      Technology: { Active: 20, InActive: 5 },
+      Travel: { Active: 12, InActive: 3 },
+      Healthcare: { Active: 15, InActive: 3 },
+      Finance: { Active: 8, InActive: 2 },
+      Education: { Active: 13, InActive: 3 },
+      'Social Media': { Active: 7, InActive: 2 },
+      Others: { Active: 5, InActive: 2 },
+      Total: { Active: 70, InActive: 17 }
     },
     'AY 24-25': {
-      Technology: { Active: 25, Inactive: 5 },
-      Travel: { Active: 16, Inactive: 4 },
-      Healthcare: { Active: 18, Inactive: 4 },
-      Finance: { Active: 10, Inactive: 2 },
-      Education: { Active: 17, Inactive: 3 },
-      'Social Media': { Active: 9, Inactive: 2 },
-      Others: { Active: 6, Inactive: 2 },
-      Total: { Active: 80, Inactive: 18 }
+      Technology: { Active: 25, InActive: 5 },
+      Travel: { Active: 16, InActive: 4 },
+      Healthcare: { Active: 18, InActive: 4 },
+      Finance: { Active: 10, InActive: 2 },
+      Education: { Active: 17, InActive: 3 },
+      'Social Media': { Active: 9, InActive: 2 },
+      Others: { Active: 6, InActive: 2 },
+      Total: { Active: 80, InActive: 18 }
     },
     Total: {
-      Technology: { Active: 60, Inactive: 15 },
-      Travel: { Active: 36, Inactive: 9 },
-      Healthcare: { Active: 45, Inactive: 9 },
-      Finance: { Active: 24, Inactive: 6 },
-      Education: { Active: 40, Inactive: 7 },
-      'Social Media': { Active: 21, Inactive: 6 },
-      Others: { Active: 14, Inactive: 6 },
-      Total: { Active: 240, Inactive: 53 }
+      Technology: { Active: 60, InActive: 15 },
+      Travel: { Active: 36, InActive: 9 },
+      Healthcare: { Active: 45, InActive: 9 },
+      Finance: { Active: 24, InActive: 6 },
+      Education: { Active: 40, InActive: 7 },
+      'Social Media': { Active: 21, InActive: 6 },
+      Others: { Active: 14, InActive: 6 },
+      Total: { Active: 240, InActive: 53 }
     }
   },
   priority_count: {
@@ -192,16 +192,18 @@ const COLORS = [
   "#9c27b0", "#2196f3", "#4caf50", "#ff9800", "#f44336"
 ];
 
-const CustomPieChartTooltip = ({ Active, payload, label }: { Active?: boolean, payload?: Array<any>, label?: string }) => {
-  if (Active && payload && payload.length) {
+const CustomPieChartTooltip = ({ active, payload, label }: { active?: boolean, payload?: Array<any>, label?: string }) => {
+  if (active && payload && payload.length) {
     return (
       <div className="bg-white p-2 border rounded shadow">
         <p className="font-bold">{label}</p>
         {payload.map((entry, index) => (
           <p key={index}>
             <span style={{ color: entry.color }} className="font-bold">{entry.name}</span>: {entry.value} startups
-            {entry.payload.Active && <span className="text-green-600"> ({entry.payload.Active} Active</span>}
-            {entry.payload.Inactive && <span className="text-gray-600">, {entry.payload.Inactive} Inactive)</span>}
+            {typeof entry.payload.Active !== 'undefined' && 
+              <span className="text-green-600"> ({entry.payload.Active} Active</span>}
+            {typeof entry.payload.InActive !== 'undefined' && 
+              <span className="text-gray-600">, {entry.payload.InActive} InActive)</span>}
           </p>
         ))}
       </div>
@@ -210,14 +212,14 @@ const CustomPieChartTooltip = ({ Active, payload, label }: { Active?: boolean, p
   return null
 }
 
-const CustomBarChartTooltip = ({ Active, payload, label }: { Active?: boolean, payload?: Array<any>, label?: string }) => {
-  if (Active && payload && payload.length) {
+const CustomBarChartTooltip = ({ active, payload, label }: { active?: boolean, payload?: Array<any>, label?: string }) => {
+  if (active && payload && payload.length) {
     return (
       <div className="bg-white p-2 border rounded shadow">
         <p className="font-bold">{label}</p>
         {payload.map((entry, index) => (
           <p key={index}>
-            <span style={{ color: entry.color }}>{entry.name}</span>: {entry.value} startups
+            <span style={{ color: entry.color }}>{entry.dataKey}</span>: {entry.value} startups
           </p>
         ))}
       </div>
@@ -240,9 +242,9 @@ const CategoriesPieChart = ({ startupData }: { startupData: any }) => {
     .filter(([key]) => key !== 'Total')
     .map(([key, value]) => ({
       name: key,
-      value: (value as any).Active + (value as any).Inactive,
+      value: (value as any).Active + (value as any).InActive,
       Active: (value as any).Active,
-      Inactive: (value as any).Inactive
+      InActive: (value as any).InActive
     }));
 
   console.log("data", data);
@@ -367,7 +369,7 @@ const BatchesBarChart = ({ startupData }: { startupData: any }) => {
     .map(([key, value]) => ({
       name: key,
       Active: (value as any)[selectedCategory].Active,
-      Inactive: (value as any)[selectedCategory].Inactive
+      InActive: (value as any)[selectedCategory].InActive
     }))
 
   return (
@@ -398,7 +400,7 @@ const BatchesBarChart = ({ startupData }: { startupData: any }) => {
               <Tooltip content={<CustomBarChartTooltip />} />
               <Legend />
               <Bar dataKey="Active" fill="#008000" stackId="a" />
-              <Bar dataKey="Inactive" fill="#8a8f93" stackId="a" />
+              <Bar dataKey="InActive" fill="#8a8f93" stackId="a" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -514,11 +516,11 @@ const StartupProgressChart = ({ startupData }: { startupData: any }) => {
 };
 
 const TotalStartupsCard = ({ startupData }: { startupData: any }) => {
-  console.log("startupData.batches_count.Total.Total.Active", startupData.batches_count.Total.Total.active);
-  console.log("startupData.batches_count.Total.Total.Inactive", startupData.batches_count.Total.Total.inactive);
+  console.log("startupData.batches_count.Total.Total.Active", startupData.batches_count.Total.Total.Active);
+  console.log("startupData.batches_count.Total.Total.InActive", startupData.batches_count.Total.Total.InActive);
   const totalActive = startupData.batches_count.Total.Total.Active;
-  const totalInactive = startupData.batches_count.Total.Total.Inactive;
-  const total = totalActive + totalInactive;
+  const totalInActive = startupData.batches_count.Total.Total.InActive;
+  const total = totalActive + totalInActive;
 
   return (
     <Card className="w-full h-full flex flex-col">
@@ -528,7 +530,7 @@ const TotalStartupsCard = ({ startupData }: { startupData: any }) => {
           <div className="text-md ml-2 py-2 self-end">startups</div>
         </div>
         <div className="text-base text-gray-500 mt-24">
-          <span className="text-green-600 text-lg">{totalActive} Active</span> • <span className="text-gray-600 text-lg">{totalInactive} Inactive</span>
+          <span className="text-green-600 text-lg">{totalActive} Active</span> • <span className="text-gray-600 text-lg">{totalInActive} InActive</span>
         </div>
       </CardContent>
     </Card>
@@ -538,9 +540,9 @@ const TotalStartupsCard = ({ startupData }: { startupData: any }) => {
 const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
   const latestBatch = startupData.batches_count['AY 24-25'].Total;
   const previousBatch = startupData.batches_count['AY 23-24'].Total;
-  const currentTotal = latestBatch.Active + latestBatch.Inactive;
-  const growth = currentTotal - (previousBatch.Active + previousBatch.Inactive);
-  const growthPercentage = Math.round((growth / (previousBatch.Active + previousBatch.Inactive)) * 100);
+  const currentTotal = latestBatch.Active + latestBatch.InActive;
+  const growth = currentTotal - (previousBatch.Active + previousBatch.InActive);
+  const growthPercentage = Math.round((growth / (previousBatch.Active + previousBatch.InActive)) * 100);
 
   return (
     <Card className="w-full h-full flex flex-col">
@@ -551,7 +553,7 @@ const BatchGrowthCard = ({ startupData }: { startupData: any }) => {
         </div>
         <div className="text-base text-gray-500">
           <span className="text-green-600 text-lg">{latestBatch.Active} Active</span> • 
-          <span className="text-gray-600 text-lg"> {latestBatch.Inactive} Inactive</span>
+          <span className="text-gray-600 text-lg"> {latestBatch.InActive} InActive</span>
         </div>
         <div className={`text-lg ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {growth >= 0 ? '↑' : '↓'} {Math.abs(growth)} ({growthPercentage}%)
