@@ -14,7 +14,7 @@ import axios from "axios";
 import { endpoints } from "@/app/utils/apis";
 import Select from "react-select";
 import { useForm, Controller } from "react-hook-form";
-import { MemberForm } from "@/components/forms/MemberForm";
+import MemberForm from "@/components/forms/MemberForm";
 
 interface Member {
   id: string;

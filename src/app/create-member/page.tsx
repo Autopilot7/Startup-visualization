@@ -1,6 +1,6 @@
 "use client";
 
-import { MemberForm } from "@/components/forms/MemberForm";
+import MemberForm from "@/components/forms/MemberForm";
 import { useRouter } from "next/navigation";
 
 export default function CreateMemberPage() {
