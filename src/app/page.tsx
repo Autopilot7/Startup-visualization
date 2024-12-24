@@ -63,9 +63,14 @@ export default function Dashboard(): JSX.Element {
       if (filters) queryParts.push(filters);
       if (debouncedSearchQuery) queryParts.push(`name=${debouncedSearchQuery}`);
       if (sortOrder) queryParts.push(`ordering=${sortOrder}`);
+      
+      // Set final filter string before adding pagination
+      setFinalFilterString(queryParts.join("&"));
+      
+      // Add pagination for the API call
       queryParts.push(`page=${pageNum}`);
-
       const fullQueryString = queryParts.join("&");
+      
       const data = await fetchStartupWithFilters(fullQueryString);
       
       if (pageNum === 1) {

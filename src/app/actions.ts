@@ -275,23 +275,23 @@ export async function exportStartups(columns: string[], filters: string, exportA
   let apiEndpoint = 'https://startupilot.cloud.strixthekiet.me/api/startups/export';
   
   console.log("Exporting columns:", columns);
+  console.log("Exporting filters:", filters);
+  console.log("Exporting all:", exportAll);
   
   try {
     let finalUrl = apiEndpoint;
-    
-    if (!exportAll) {
-      if (filters.length > 0 && columns.length > 0 && !columns.includes("all")) {
-        finalUrl = `${apiEndpoint}?${filters}&columns=name,${columns.join(',')}`;
-      }
-      else if (filters.length > 0) {
-        finalUrl = `${apiEndpoint}?${filters}`;
-      }
-      else if (columns.length > 0 && !columns.includes("all")) {
+    if (exportAll) {
+      if (!columns.includes("all")) {
         finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
       }
     }
-    else if (columns.length > 0 && !columns.includes("all")) {
-      finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
+    else {
+      if (filters.length > 0) {
+        finalUrl = `${apiEndpoint}?${filters}`;
+      }
+      if (!columns.includes("all")) {
+        finalUrl = `${apiEndpoint}?columns=name,${columns.join(',')}`;
+      }
     }
     
     console.log("API Endpoint: ", finalUrl);
