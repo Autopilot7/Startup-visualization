@@ -498,13 +498,13 @@ const StartupForm = ({ type, data }: { type: "create" | "update"; data?: any }) 
           {/* Members Section */}
           <div>
             <h2 className="text-lg font-semibold mb-2">Members</h2>
-            <button
+            <Button
               type="button"
               onClick={() => setIsMemberModalOpen(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
               Create Member
-            </button>
+            </Button>
             
             <div className="mt-6">
               {members.length === 0 ? (
