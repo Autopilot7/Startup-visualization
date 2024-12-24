@@ -9,7 +9,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import Modal from "../Modal"; // Assuming you have a Modal component
 import CreateMemberForm from "@/app/create-member/page";
-import { AdvisorForm } from "@/components/forms/AdvisorForm";
+import AdvisorForm from "@/components/forms/AdvisorForm";
 import axios from "axios";
 import { endpoints } from "@/app/utils/apis";
 import Select from "react-select";

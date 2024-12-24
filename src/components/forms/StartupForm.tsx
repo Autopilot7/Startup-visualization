@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import Modal from "../Modal"; // Assuming you have a Modal component
 import MemberForm from "@/components/forms/MemberForm";
-import { AdvisorForm } from "@/components/forms/AdvisorForm";
+import AdvisorForm from "@/components/forms/AdvisorForm";
 import { useEffect } from "react";
 import axios from 'axios';
 import { endpoints } from '@/app/utils/apis';

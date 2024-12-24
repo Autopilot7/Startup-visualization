@@ -1,6 +1,6 @@
 "use client";
 
-import { AdvisorForm } from "@/components/forms/AdvisorForm";
+import AdvisorForm from "@/components/forms/AdvisorForm";
 import { useRouter } from "next/navigation";
 
 export default function CreateAdvisorPage() {
