@@ -31,7 +31,7 @@ const InputField = ({
 }: InputFieldProps) => {
   return (
     <div className={className}>
-      <label className="text-xs text-gray-500">{label}</label>
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
       <input
         type={type}
         {...register(name)}

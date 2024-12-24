@@ -762,7 +762,7 @@ const UpdateStartupForm: React.FC<UpdateStartupFormProps> = ({
           </div>
 
           {/* Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <InputField
               label="Location"
               name="location"
